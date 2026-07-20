@@ -13,15 +13,17 @@
         body {
             font-family: 'Fredoka', sans-serif;
             overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
 
-   .fondo-dinamico {
+      .fondo-dinamico {
             background: linear-gradient(to bottom, #0f172a 0%, #1e1b4b 20%, #312e81 40%, #1e3a8a 60%, #0c4a6e 80%, #164e63 100%);
             position: fixed;
             inset: 0;
             z-index: 0;
         }
-   .aurora {
+      .aurora {
             position: absolute;
             width: 200%;
             height: 50%;
@@ -35,7 +37,7 @@
             0%, 100% { transform: translateX(-50%) skewX(-15deg); }
             50% { transform: translateX(0%) skewX(15deg); }
         }
-   .montanas {
+      .montanas {
             position: absolute;
             bottom: 20%;
             width: 100%;
@@ -43,14 +45,14 @@
             background: #1e293b;
             clip-path: polygon(0% 100%, 10% 60%, 20% 80%, 30% 40%, 40% 70%, 50% 30%, 60% 60%, 70% 45%, 80% 75%, 90% 50%, 100% 70%, 100% 100%);
         }
-   .mar {
+      .mar {
             position: absolute;
             bottom: 0;
             width: 100%;
             height: 25%;
             background: linear-gradient(to bottom, #0e7490, #155e75);
         }
-   .waves {
+      .waves {
             position: absolute;
             bottom: 0;
             width: 100%;
@@ -63,26 +65,7 @@
             100% { background-position-x: 1440px; }
         }
 
-   .cartero-anim {
-            animation: entrarCartero 1.5s ease-out forwards;
-        }
-        @keyframes entrarCartero {
-            0% { transform: translateX(-300px) rotate(-15deg); opacity: 0; }
-            100% { transform: translateX(0) rotate(0deg); opacity: 1; }
-        }
-   .carta-volando {
-            animation: volarCarta 1s ease-out 1s forwards;
-            opacity: 0;
-            cursor: pointer;
-            position: relative;
-            z-index: 50;
-        }
-        @keyframes volarCarta {
-            0% { opacity: 0; transform: translateY(0) scale(0.3) rotate(-30deg); }
-            100% { opacity: 1; transform: translateY(-40px) scale(1) rotate(0deg); }
-        }
-
-   .glass-card {
+      .glass-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(12px);
             box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
@@ -98,25 +81,26 @@
             background-color: white;
         }
 
-   .carta-pagina {
+      .carta-pagina {
             background: #fef9f3;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0.3);
             min-height: 500px;
         }
 
-   .estrella {
+      .estrella {
             position: absolute;
             cursor: pointer;
             animation: brillar 2s ease-in-out infinite;
             transition: all 0.3s;
             user-select: none;
             font-size: 30px;
+            z-index: 100;
         }
-   .estrella:hover {
+      .estrella:hover {
             transform: scale(1.8);
             filter: drop-shadow(0 0 15px #fbbf24);
         }
-   .estrella.activa {
+      .estrella.activa {
             filter: drop-shadow(0 0 20px #fbbf24);
             animation: pulsar 0.6s ease-in-out infinite;
         }
@@ -129,7 +113,7 @@
             50% { transform: scale(1.5); }
         }
 
-   .fogata {
+      .fogata {
             animation: flame 0.8s ease-in-out infinite alternate;
         }
         @keyframes flame {
@@ -137,7 +121,7 @@
             100% { transform: scale(1.15) rotate(3deg); }
         }
 
-   .pinguino-bounce {
+      .pinguino-bounce {
             animation: bounce 2s ease-in-out infinite;
         }
         @keyframes bounce {
@@ -155,43 +139,40 @@
         <div class="waves"></div>
     </div>
 
-    <!-- PANTALLA 0: INTRO -->
-    <div id="intro" class="relative z-30 min-h-screen flex items-center justify-center p-4">
+    <!-- PANTALLA 0: INTRO - BOTÓN GIGANTE QUE SÍ FUNCIONA -->
+    <div id="intro" class="relative z-50 min-h-screen flex items-center justify-center p-4">
         <div class="text-center">
-            <h2 class="text-3xl font-bold text-white mb-8 drop-shadow-lg">¡Tienes una Pingüi-Carta! 💌</h2>
-            <div class="cartero-anim inline-block mb-8">
-                <svg width="180" height="180" viewBox="0 0 180 180">
-                    <ellipse cx="90" cy="110" rx="40" ry="50" fill="#1e3a8a"/>
-                    <ellipse cx="90" cy="115" rx="28" ry="38" fill="white"/>
-                    <ellipse cx="78" cy="85" rx="7" ry="9" fill="white"/>
-                    <ellipse cx="102" cy="85" rx="7" ry="9" fill="white"/>
-                    <circle cx="78" cy="87" r="4" fill="#1e3a8a"/>
-                    <circle cx="102" cy="87" r="4" fill="#1e3a8a"/>
-                    <ellipse cx="79" cy="84" rx="2" ry="3" fill="white"/>
-                    <ellipse cx="103" cy="84" rx="2" ry="3" fill="white"/>
-                    <polygon points="90,93 84,101 96,101" fill="#f97316"/>
-                    <path d="M 65 105 Q 90 110 115 105 L 115 115 Q 90 120 65 115 Z" fill="#38bdf8"/>
-                    <rect x="110" y="105" width="10" height="30" rx="5" fill="#38bdf8"/>
-                    <ellipse cx="60" cy="115" rx="8" ry="18" fill="#1e3a8a" transform="rotate(-25 60 115)"/>
-                    <ellipse cx="120" cy="115" rx="8" ry="18" fill="#1e3a8a" transform="rotate(25 120 115)"/>
-                    <ellipse cx="78" cy="160" rx="10" ry="6" fill="#f97316"/>
-                    <ellipse cx="102" cy="160" rx="10" ry="6" fill="#f97316"/>
-                    <rect x="125" y="95" width="30" height="35" rx="4" fill="#92400e"/>
-                    <rect x="127" y="97" width="26" height="4" fill="#fbbf24"/>
-                    <rect x="130" y="105" width="20" height="15" rx="2" fill="#fef3c7"/>
+            <h2 class="text-4xl font-bold text-white mb-8 drop-shadow-lg">¡Tienes una Pingüi-Carta! 💌</h2>
+
+            <!-- Pingüino cartero -->
+            <div class="mb-8">
+                <svg width="200" height="200" viewBox="0 0 200 200" class="mx-auto">
+                    <ellipse cx="100" cy="120" rx="45" ry="55" fill="#1e3a8a"/>
+                    <ellipse cx="100" cy="125" rx="32" ry="42" fill="white"/>
+                    <ellipse cx="88" cy="95" rx="8" ry="10" fill="white"/>
+                    <ellipse cx="112" cy="95" rx="8" ry="10" fill="white"/>
+                    <circle cx="88" cy="97" r="5" fill="#1e3a8a"/>
+                    <circle cx="112" cy="97" r="5" fill="#1e3a8a"/>
+                    <ellipse cx="89" cy="94" rx="2.5" ry="3.5" fill="white"/>
+                    <ellipse cx="113" cy="94" rx="2.5" ry="3.5" fill="white"/>
+                    <polygon points="100,103 94,111 106,111" fill="#f97316"/>
+                    <path d="M 75 115 Q 100 120 125 115 L 125 Q 100 130 75 125 Z" fill="#38bdf8"/>
+                    <rect x="120" y="115" width="12" height="35" rx="6" fill="#38bdf8"/>
+                    <ellipse cx="70" cy="125" rx="9" ry="20" fill="#1e3a8a" transform="rotate(-25 70 125)"/>
+                    <ellipse cx="130" cy="125" rx="9" ry="20" fill="#1e3a8a" transform="rotate(25 130 125)"/>
+                    <ellipse cx="88" cy="175" rx="12" ry="7" fill="#f97316"/>
+                    <ellipse cx="112" cy="175" rx="12" ry="7" fill="#f97316"/>
+                    <rect x="135" y="105" width="35" height="40" rx="5" fill="#92400e"/>
+                    <rect x="137" y="107" width="31" height="5" fill="#fbbf24"/>
+                    <rect x="140" y="115" width="25" height="18" rx="3" fill="#fef3c7"/>
                 </svg>
             </div>
 
-            <div class="carta-volando inline-block" onclick="empezarCarta()">
-                <div class="bg-white rounded-3xl p-8 shadow-2xl border-4 border-blue-300 hover:scale-110 transition">
-                    <svg width="100" height="70" viewBox="0 0 100 70">
-                        <rect x="5" y="15" width="90" height="50" rx="8" fill="#fef3c7"/>
-                        <polygon points="5,15 50,45 95,15" fill="#fde68a"/>
-                        <circle cx="50" cy="35" r="8" fill="#ec4899" opacity="0.6"/>
-                    </svg>
-                    <p class="text-slate-700 font-bold mt-3 text-lg">¡Toca para abrir!</p>
-                </div>
-            </div>
+            <!-- BOTÓN GIGANTE QUE SÍ FUNCIONA -->
+            <button onclick="empezarCarta()" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-2xl font-bold px-12 py-6 rounded-3xl shadow-2xl hover:scale-110 transition transform hover:shadow-pink-500/50 border-4 border-white">
+                💌 ¡ABRIR MI CARTA! 💌
+            </button>
+            <p class="text-white/80 mt-4 text-lg">Toca el botón de arriba ⬆️</p>
         </div>
     </div>
 
@@ -430,6 +411,7 @@
         let retosGuardados = {};
         let datosCarta = {};
 
+        // Cargar carta desde URL
         window.addEventListener('load', () => {
             const hash = window.location.hash;
             if (hash.startsWith('#carta=')) {
@@ -512,6 +494,38 @@
                 para: para,
                 mensaje: mensaje,
                 cancion: document.getElementById('cancion').value,
-                dibujo: document.getElementById('canvas').to
+                dibujo: document.getElementById('canvas').toDataURL(),
+                cupon1t: '',
+                cupon1d: '',
+                cupon2t: '',
+                cupon2d: '',
+                mapaPuntos: [],
+                retos: {}
+            };
+
+            document.getElementById('nombreRemitente').textContent = de;
+            document.getElementById('nombreDestino').textContent = para;
+            document.getElementById('mensajeFinal').textContent = mensaje;
+
+            const cancionUrl = datosCarta.cancion;
+            const player = document.getElementById('cancionFinal');
+            if (cancionUrl.includes('youtube.com') || cancionUrl.includes('youtu.be')) {
+                const videoId = cancionUrl.split('v=')[1]?.split('&')[0] || cancionUrl.split('/').pop();
+                player.innerHTML = `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen class="rounded-2xl"></iframe>`;
+            } else if (cancionUrl.includes('spotify.com')) {
+                const trackId = cancionUrl.split('track/')[1]?.split('?')[0];
+                player.innerHTML = `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="250" frameborder="0" class="rounded-2xl"></iframe>`;
+            }
+
+            document.getElementById('pantallaCrear').classList.add('hidden');
+            document.getElementById('pantallaCarta').classList.remove('hidden');
+            initMapa();
+        }
+
+        function mostrarPagina(num) {
+            document.getElementById('pagina1').classList.toggle('hidden', num!== 1);
+            document.getElementById('pagina2').classList.toggle('hidden', num!== 2);
+            document.getElementById('btnPag1').classList.toggle('bg-white', num === 1);
+            document.getElementById('btnPag
 
         
