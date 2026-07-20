@@ -1,302 +1,546 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>🐧 Pingüi-Carta Virtual 🌊</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box }
-    body {
-      font-family: 'Fredoka', sans-serif;
-      background: linear-gradient(180deg, #38BDF8 0%, #0C4A6E 100%);
-      height: 100vh; overflow: hidden; color: #0C4A6E;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pingüi-Carta Virtual 2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Fredoka', sans-serif;
+            overflow: hidden;
+            transition: background 2s ease;
+        }
 
-    /* OLAS */
-   .ola {
-      position: absolute; bottom: 0; width: 200%; height: 120px;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path fill="%23ffffff22" d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"></path></svg>');
-      animation: moverOla 6s linear infinite; z-index: 1;
-    }
-    @keyframes moverOla { 0% {left: 0} 100% {left: -100%} }
+        /* FONDOS DÍA Y NOCHE */
+       .escena {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+       .escena.activa { display: flex; }
 
-    /* PINGÜINOS BASE */
-   .pinguino {
-      position: absolute; bottom: 80px; width: 90px; z-index: 5;
-      animation: deslizar 12s ease-in-out infinite;
-    }
-   .pinguino2 { animation-delay: 6s; transform: scaleX(-1); }
-    @keyframes deslizar {
-      0%,100% {left: 5%; transform: rotate(-5deg)}
-      50% {left: 85%; transform: rotate(5deg)}
-    }
+        #escena1 {
+            background: linear-gradient(to bottom, #a8d8ea 0%, #e0f6ff 60%, #ffffff 100%);
+        }
+        #escena1.noche {
+            background: linear-gradient(to bottom, #0c1445 0%, #1a237e 60%, #0d47a1 100%);
+        }
 
-    /* PINGÜINO MENSAJERO CON SOBRE */
-   .pinguino-mensajero {
-      position: fixed; bottom: 80px; left: -100px; width: 120px; z-index: 50;
-      display: none; animation: entregarCarta 4s ease-in-out forwards;
-    }
-   .sobre {
-      position: absolute; top: 35px; left: 60px; width: 40px;
-      transform: rotate(15deg);
-    }
-    @keyframes entregarCarta {
-      0% { left: -120px; bottom: 80px; transform: rotate(-10deg); }
-      40% { left: 40%; bottom: 50%; transform: rotate(5deg); }
-      70% { left: 50%; bottom: 55%; transform: rotate(-5deg); }
-      100% { left: 50%; bottom: 60%; transform: rotate(0deg) scale(0.8); opacity: 0; }
-    }
+        /* NIEVE/ESTRELLAS */
+       .particulas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+       .nieve {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: caer 10s linear infinite;
+        }
+       .estrella {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: titilar 3s ease-in-out infinite;
+        }
+        @keyframes caer {
+            from { transform: translateY(-10vh); opacity: 1; }
+            to { transform: translateY(110vh); opacity: 0; }
+        }
+        @keyframes titilar {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
 
-    /* CARTA */
-   .carta {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      background: rgba(255,255,255,0.95); padding: 25px;
-      border-radius: 25px; width: 90%; max-width: 500px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-      backdrop-filter: blur(10px); z-index: 10;
-      animation: aparecerCarta 0.5s 3.5s ease-out forwards;
-    }
-    @keyframes aparecerCarta { to { transform: translate(-50%, -50%) scale(1); } }
-    @keyframes flotar { 0%,100% {transform: translate(-50%, -50%)} 50% {transform: translate(-50%, -53%)} }
+        /* PINGÜINO CAMINANDO */
+        #pinguino-entrega {
+            position: absolute;
+            bottom: 20%;
+            left: -100px;
+            width: 80px;
+            height: 100px;
+            animation: caminar 4s ease-out forwards;
+        }
+        @keyframes caminar {
+            to { left: calc(50% - 40px); }
+        }
+       .pinguino {
+            width: 80px;
+            height: 100px;
+            background: #2c3e50;
+            border-radius: 50% 50% 40% 40%;
+            position: relative;
+        }
+       .pinguino::before {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            top: 30px;
+            left: 15px;
+        }
+       .pico {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #f39c12;
+            top: 25px;
+            left: 32px;
+        }
+       .mochila {
+            position: absolute;
+            width: 25px;
+            height: 30px;
+            background: #e74c3c;
+            border-radius: 5px;
+            right: -5px;
+            top: 35px;
+        }
 
-    h1 { text-align: center; margin-bottom: 15px; font-size: 1.8rem; }
-    textarea, input {
-      width: 100%; padding: 12px; margin: 8px 0;
-      border: 3px solid #0EA5E9; border-radius: 15px;
-      font-family: 'Fredoka'; font-size: 1rem;
-    }
+        /* SOBRE */
+       .sobre {
+            width: 200px;
+            height: 120px;
+            background: #f8f4e8;
+            border: 2px solid #d4c5a9;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            animation: aparecerSobre 1s 4s forwards;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+       .sobre:hover { transform: translateX(-50%) scale(1.05); }
+        @keyframes aparecerSobre {
+            to { transform: translateX(-50%) scale(1); }
+        }
+       .sobre::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(135deg, transparent 50%, #d4c5a9 50%);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
 
-    #canvas {
-      border: 3px solid #0EA5E9; border-radius: 15px;
-      background: white; cursor: crosshair; touch-action: none;
-      width: 100%; height: 200px; margin: 8px 0;
-    }
+        /* FORMULARIO SOBRE */
+       .form-sobre {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+        }
+       .form-sobre.activo { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #a8d8ea;
+            border-radius: 10px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { transform: scale(1.02); }
 
-   .herramientas {
-      display: flex; gap: 8px; margin: 8px 0; justify-content: center; flex-wrap: wrap;
-    }
-    button {
-      background: #0EA5E9; color: white; border: none;
-      padding: 12px 18px; border-radius: 15px; font-family: 'Fredoka';
-      font-size: 1rem; cursor: pointer; transition: 0.2s;
-    }
-    button:hover { background: #0284C7; transform: scale(1.05); }
-    button:disabled { background: #94A3B8; cursor: not-allowed; }
+        /* ESCENA DE CARGA */
+        #escena2 { background: #a8d8ea; }
+       .pinguinos-carga {
+            display: flex;
+            gap: 100px;
+        }
+       .pinguino-slide {
+            animation: deslizar 2s ease-in-out infinite;
+        }
+       .pinguino-slide:nth-child(2) { animation-delay: 0.5s; }
+        @keyframes deslizar {
+            0%, 100% { transform: translateX(-50px); }
+            50% { transform: translateX(50px); }
+        }
 
-   .vista-carta { display: none; text-align: center; }
-   .vista-carta img { max-width: 100%; border-radius: 15px; margin: 10px 0; }
-   .mensaje {
-      background: #E0F2FE; padding: 15px; border-radius: 15px;
-      margin: 15px 0; font-size: 1.1rem; min-height: 60px; word-wrap: break-word;
-    }
-   .link-compartir {
-      background: #DCFCE7; padding: 12px; border-radius: 15px;
-      margin: 15px 0; font-size: 0.9rem; word-break: break-all;
-    }
-   .oculto { display: none!important; }
-  </style>
+        /* HOJA VINTAGE */
+        #escena3 {
+            background: #a8d8ea;
+            padding: 20px;
+            overflow-y: auto;
+        }
+       .hoja-vintage {
+            background: #f4e4c1;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 31px, #d4c5a9 31px, #d4c5a9 32px),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.1"/></svg>');
+            padding: 40px;
+            border-radius: 5px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.3), inset 0 0 100px rgba(139,69,19,0.1);
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            animation: abrirHoja 1s ease-out;
+        }
+        @keyframes abrirHoja {
+            from { transform: rotateX(90deg); opacity: 0; }
+            to { transform: rotateX(0); opacity: 1; }
+        }
+       .hoja-vintage.cerrando {
+            animation: cerrarHoja 1s ease-in forwards;
+        }
+        @keyframes cerrarHoja {
+            to { transform: rotateX(90deg) scale(0.8); opacity: 0; }
+        }
+
+        /* CUPONES */
+       .cupones {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+       .cupon {
+            flex: 1;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            border: 2px dashed white;
+        }
+       .cupon input {
+            background: rgba(255,255,255,0.3);
+            border: 1px solid white;
+            color: white;
+            margin: 5px 0;
+        }
+       .cupon input::placeholder { color: rgba(255,255,255,0.8); }
+
+        /* CANVAS DIBUJO */
+        #canvas-dibujo {
+            border: 2px dashed #8b7355;
+            background: rgba(255,255,255,0.5);
+            cursor: crosshair;
+            display: block;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+       .colores {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+       .color-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #8b7355;
+            cursor: pointer;
+        }
+
+        /* ESCENA FINAL NOCHE */
+        #escena4 {
+            background: linear-gradient(to bottom, #0c1445 0%, #1a237e 100%);
+        }
+       .fogata {
+            position: absolute;
+            bottom: 10%;
+            width: 60px;
+            height: 80px;
+        }
+       .fuego {
+            width: 40px;
+            height: 60px;
+            background: radial-gradient(ellipse at bottom, #ff6b35 0%, #f7931e 40%, transparent 70%);
+            margin: 0 auto;
+            animation: fuego 1s ease-in-out infinite alternate;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        }
+        @keyframes fuego {
+            from { transform: scaleY(1); }
+            to { transform: scaleY(1.2); }
+        }
+       .troncos {
+            width: 60px;
+            height: 10px;
+            background: #4a2c17;
+            position: absolute;
+            bottom: 0;
+            border-radius: 5px;
+        }
+       .troncos:nth-child(2) { transform: rotate(45deg); }
+       .troncos:nth-child(3) { transform: rotate(-45deg); }
+
+       .pinguinos-fogata {
+            position: absolute;
+            bottom: 15%;
+            display: flex;
+            gap: 80px;
+        }
+
+       .mensaje-final {
+            position: absolute;
+            top: 20%;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            animation: fadeIn 2s 1s both;
+        }
+
+        h1, h2, h3 { color: #2c3e50; margin-bottom: 15px; }
+        label { display: block; color: #5a6c7d; font-weight: 600; margin-top: 15px; }
+    </style>
 </head>
 <body>
-  <!-- EFECTOS -->
-  <div class="ola"></div>
-  <img src="https://cdn-icons-png.flaticon.com/512/10100/10100884.png" class="pinguino" id="p1">
-  <img src="https://cdn-icons-png.flaticon.com/512/10100/10100884.png" class="pinguino pinguino2" id="p2">
-
-  <!-- PINGÜINO MENSAJERO -->
-  <div class="pinguino-mensajero" id="mensajero">
-    <img src="https://cdn-icons-png.flaticon.com/512/10100/10100884.png" style="width:100%">
-    <img src="https://cdn-icons-png.flaticon.com/512/561/561127.png" class="sobre">
-  </div>
-
-  <!-- EDITOR -->
-  <div class="carta" id="editor" style="animation: flotar 4s ease-in-out infinite;">
-    <h1>🐧 Crea tu Pingüi-Carta 🌊</h1>
-    <textarea id="mensaje" placeholder="Escribe tu mensaje aquí..." rows="3"></textarea>
-    <input type="url" id="musica" placeholder="Link de música.mp3 o YouTube">
-    <canvas id="canvas"></canvas>
-    <div class="herramientas">
-      <button onclick="cambiarColor('#0EA5E9')">🔵</button>
-      <button onclick="cambiarColor('#EC4899')">🌸</button>
-      <button onclick="cambiarColor('#000000')">⚫</button>
-      <button onclick="borrarCanvas()">🗑️ Borrar</button>
-    </div>
-    <button onclick="generarLink()" style="width:100%; margin-top:10px;" id="btnGenerar">✨ Generar Link para Compartir ✨</button>
-  </div>
-
-  <!-- VISTA FINAL -->
-  <div class="carta vista-carta" id="vista">
-    <h1>🐧 ¡Te llegó una Pingüi-Carta! 💌</h1>
-    <div class="mensaje" id="mensajeFinal"></div>
-    <img id="dibujoFinal" alt="Tu dibujo">
-    <div id="audioContainer"></div>
-    <button onclick="window.location.href = window.location.pathname">↩️ Crear mi propia carta</button>
-  </div>
-
-  <script>
-    // BURBUJAS + NIEVE
-    setInterval(() => {
-      let el = document.createElement('div');
-      let esBurbuja = Math.random() > 0.5;
-      el.style.cssText = `
-        position:absolute; bottom:0; left:${Math.random()*100}%;
-        width:${esBurbuja? Math.random()*15+5 : Math.random()*8+3}px;
-        height:${esBurbuja? Math.random()*15+5 : Math.random()*8+3}px;
-        background:${esBurbuja? 'rgba(255,255,255,0.4)' : 'white'};
-        border-radius:50%; pointer-events:none;
-        animation: subir ${Math.random()*6+4}s linear forwards;
-        z-index: ${esBurbuja? 1 : 2};
-      `;
-      document.body.appendChild(el);
-      setTimeout(()=>el.remove(), 10000);
-    }, 200);
-
-    // DIBUJO EN CANVAS
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let dibujando = false;
-    let colorActual = '#0EA5E9';
-
-    function resizeCanvas() {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = colorActual;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    function getPos(e) {
-      const rect = canvas.getBoundingClientRect();
-      const clientX = e.clientX || e.touches[0].clientX;
-      const clientY = e.clientY || e.touches[0].clientY;
-      return { x: clientX - rect.left, y: clientY - rect.top };
-    }
-
-    function empezarDibujo(e) {
-      dibujando = true;
-      const pos = getPos(e);
-      ctx.beginPath();
-      ctx.moveTo(pos.x, pos.y);
-      e.preventDefault();
-    }
-
-    function dibujar(e) {
-      if (!dibujando) return;
-      const pos = getPos(e);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
-      e.preventDefault();
-    }
-
-    function terminarDibujo() { dibujando = false; }
-
-    canvas.addEventListener('mousedown', empezarDibujo);
-    canvas.addEventListener('mousemove', dibujar);
-    canvas.addEventListener('mouseup', terminarDibujo);
-    canvas.addEventListener('touchstart', empezarDibujo);
-    canvas.addEventListener('touchmove', dibujar);
-    canvas.addEventListener('touchend', terminarDibujo);
-
-    function cambiarColor(color) {
-      colorActual = color;
-      ctx.strokeStyle = color;
-    }
-    function borrarCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // SISTEMA DE LINKS ÚNICOS
-    function generarLink() {
-      const mensaje = document.getElementById('mensaje').value;
-      const linkMusica = document.getElementById('musica').value;
-      const dibujo = canvas.toDataURL();
-
-      // 1. Crear ID único y guardar en localStorage
-      const id = 'carta_' + Date.now().toString(36);
-      const datosCarta = { mensaje, linkMusica, dibujo };
-      localStorage.setItem(id, JSON.stringify(datosCarta));
-
-      // 2. Crear link para compartir
-      const link = window.location.origin + window.location.pathname + '?carta=' + id;
-
-      // 3. Mostrar link
-      document.getElementById('btnGenerar').outerHTML = `
-        <div class="link-compartir">
-          <strong>¡Listo! Copia y manda este link:</strong><br>
-          ${link}
+    <!-- ESCENA 1: ENTREGA -->
+    <div id="escena1" class="escena activa">
+        <div class="particulas" id="particulas1"></div>
+        <div id="pinguino-entrega">
+            <div class="pinguino">
+                <div class="pico"></div>
+                <div class="mochila"></div>
+            </div>
         </div>
-        <button onclick="navigator.clipboard.writeText('${link}'); this.innerText='✅ Copiado'" style="width:100%">📋 Copiar Link</button>
-        <button onclick="window.open('https://wa.me/?text=Mira la Pingüi-Carta que te hice 🐧💌 ${encodeURIComponent(link)}')" style="width:100%; background:#25D366; margin-top:8px;">💬 Mandar por WhatsApp</button>
-      `;
-    }
+        <div class="sobre" id="sobre" onclick="abrirSobre()"></div>
+        <div class="form-sobre" id="formSobre">
+            <h2>🐧 ¿Para quién es esta carta?</h2>
+            <input type="text" id="de" placeholder="De: Tu nombre">
+            <input type="text" id="para" placeholder="Para: Nombre de tu persona especial">
+            <button onclick="iniciarCarga()">Empezar mi Pingüi-Carta ✨</button>
+        </div>
+    </div>
 
-    // AL CARGAR LA PÁGINA: Revisar si hay carta en el link
-    window.onload = function() {
-      const params = new URLSearchParams(window.location.search);
-      const idCarta = params.get('carta');
+    <!-- ESCENA 2: CARGA -->
+    <div id="escena2" class="escena">
+        <h2 style="color: white; margin-bottom: 50px;">Preparando tu carta...</h2>
+        <div class="pinguinos-carga">
+            <div class="pinguino pinguino-slide">
+                <div class="pico"></div>
+            </div>
+            <div class="pinguino pinguino-slide">
+                <div class="pico"></div>
+            </div>
+        </div>
+    </div>
 
-      if (idCarta) {
-        // MODO VISTA: Alguien abrió un link de carta
-        const datos = JSON.parse(localStorage.getItem(idCarta));
+    <!-- ESCENA 3: CREAR CARTA -->
+    <div id="escena3" class="escena">
+        <div class="hoja-vintage" id="hojaVintage">
+            <h1>📜 Mi Pingüi-Carta</h1>
+            <p style="color: #8b7355; margin-bottom: 20px;">
+                <strong>De:</strong> <span id="mostrarDe"></span> |
+                <strong>Para:</strong> <span id="mostrarPara"></span>
+            </p>
 
-        if (datos) {
-          // 1. Ocultar editor y pingüinos base
-          document.getElementById('editor').classList.add('oculto');
-          document.getElementById('p1').classList.add('oculto');
-          document.getElementById('p2').classList.add('oculto');
+            <label>✍️ Tu mensaje:</label>
+            <textarea id="mensaje" rows="4" placeholder="Escribe algo bonito..."></textarea>
 
-          // 2. Activar animación de pingüino mensajero
-          document.getElementById('mensajero').style.display = 'block';
+            <label>🖼️ Link de imagen:</label>
+            <input type="url" id="imagen" placeholder="https://ejemplo.com/foto.jpg">
 
-          // 3. Después de 4s, mostrar carta
-          setTimeout(() => {
-            document.getElementById('mensajeFinal').innerText = datos.mensaje || 'Sin mensaje 🐧';
-            document.getElementById('dibujoFinal').src = datos.dibujo;
+            <label>🎵 Link de canción (YouTube, Spotify, MP3):</label>
+            <input type="url" id="musica" placeholder="https://...">
 
-            // Música
-            const audioContainer = document.getElementById('audioContainer');
-            if (datos.linkMusica) {
-              if (datos.linkMusica.includes('youtube.com') || datos.linkMusica.includes('youtu.be')) {
-                const videoId = datos.linkMusica.split('v=')[1]?.split('&')[0] || datos.linkMusica.split('/').pop();
-                audioContainer.innerHTML = `<iframe width="100%" height="166" scrolling="no" frameborder="no" src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1"></iframe>`;
-              } else {
-                audioContainer.innerHTML = `<audio controls autoplay loop style="width:100%; margin:15px 0;"><source src="${datos.linkMusica}"></audio>`;
-              }
-            }
+            <label>📍 Link del lugar desde donde envías:</label>
+            <input type="url" id="ubicacion" placeholder="https://maps.google.com/...">
 
-            document.getElementById('vista').style.display = 'block';
-            confetti();
-          }, 3500);
+            <h3>🎟️ Cupones Especiales</h3>
+            <div class="cupones">
+                <div class="cupon">
+                    <input type="text" id="cupon1" placeholder="Vale por...">
+                </div>
+                <div class="cupon">
+                    <input type="text" id="cupon2" placeholder="Cupón para...">
+                </div>
+            </div>
 
-        } else {
-          // Carta no encontrada
-          document.getElementById('editor').innerHTML = '<h1>😢 Carta no encontrada</h1><p>Este link ya expiró o es incorrecto.</p><button onclick="window.location.href = window.location.pathname">Crear nueva carta</button>';
+            <label>🎨 Firma o dibuja algo:</label>
+            <canvas id="canvas-dibujo" width="600" height="200"></canvas>
+            <div class="colores">
+                <div class="color-btn" style="background: #2c3e50;" onclick="cambiarColor('#2c3e50')"></div>
+                <div class="color-btn" style="background: #e74c3c;" onclick="cambiarColor('#e74c3c')"></div>
+                <div class="color-btn" style="background: #3498db;" onclick="cambiarColor('#3498db')"></div>
+                <div class="color-btn" style="background: #2ecc71;" onclick="cambiarColor('#2ecc71')"></div>
+                <button onclick="limpiarCanvas()" style="width: auto; padding: 10px 20px;">🗑️</button>
+            </div>
+
+            <button onclick="enviarCarta()">✨ Cerrar y Enviar Carta ✨</button>
+        </div>
+    </div>
+
+    <!-- ESCENA 4: FINAL NOCHE -->
+    <div id="escena4" class="escena">
+        <div class="particulas" id="particulas4"></div>
+        <div class="mensaje-final">
+            <h2>Tu Pingüi-Carta fue entregada ❤️</h2>
+            <p id="linkFinal" style="margin-top: 20px; font-size: 16px;"></p>
+            <button onclick="location.reload()" style="width: auto; margin-top: 20px;">Crear otra carta</button>
+        </div>
+        <div class="pinguinos-fogata">
+            <div class="pinguino" style="transform: scale(0.8);">
+                <div class="pico"></div>
+            </div>
+            <div class="pinguino" style="transform: scale(0.8);">
+                <div class="pico"></div>
+            </div>
+        </div>
+        <div class="fogata">
+            <div class="troncos"></div>
+            <div class="troncos"></div>
+            <div class="troncos"></div>
+            <div class="fuego"></div>
+        </div>
+    </div>
+
+    <script>
+        // Crear nieve
+        for(let i = 0; i < 50; i++) {
+            const nieve = document.createElement('div');
+            nieve.className = 'nieve';
+            nieve.style.left = Math.random() * 100 + '%';
+            nieve.style.animationDelay = Math.random() * 10 + 's';
+            nieve.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            document.getElementById('particulas1').appendChild(nieve);
         }
-      }
-    }
 
-    // EFECTO CONFETI DE NIEVE
-    function confetti() {
-      for(let i = 0; i < 60; i++) {
-        let copo = document.createElement('div');
-        copo.style.cssText = `
-          position:fixed; top:-10px; left:${Math.random()*100}vw;
-          width:${Math.random()*10+5}px; height:${Math.random()*10+5}px;
-          background:white; border-radius:50%; pointer-events:none;
-          animation: caer ${Math.random()*3+2}s linear forwards;
-          z-index:100;
-        `;
-        document.body.appendChild(copo);
-        setTimeout(()=>copo.remove(), 5000);
-      }
-    }
-  </script>
-  <style>
-    @keyframes subir { to { bottom:100vh; opacity:0; transform:translateX(${Math.random()*100-50}px) } }
-    @keyframes caer { to { top:100vh; transform:rotate(360deg); opacity:0 } }
-  </style>
+        function abrirSobre() {
+            document.getElementById('sobre').style.display = 'none';
+            document.getElementById('formSobre').classList.add('activo');
+        }
+
+        function iniciarCarga() {
+            const de = document.getElementById('de').value || 'Alguien especial';
+            const para = document.getElementById('para').value || 'Tú';
+            document.getElementById('mostrarDe').textContent = de;
+            document.getElementById('mostrarPara').textContent = para;
+
+            document.getElementById('escena1').classList.remove('activa');
+            document.getElementById('escena2').classList.add('activa');
+
+            setTimeout(() => {
+                document.getElementById('escena2').classList.remove('activa');
+                document.getElementById('escena3').classList.add('activa');
+            }, 3000);
+        }
+
+        // Canvas dibujo
+        const canvas = document.getElementById('canvas-dibujo');
+        const ctx = canvas.getContext('2d');
+        let dibujando = false;
+        let colorActual = '#2c3e50';
+
+        canvas.addEventListener('mousedown', () => dibujando = true);
+        canvas.addEventListener('mouseup', () => dibujando = false);
+        canvas.addEventListener('mousemove', dibujar);
+        canvas.addEventListener('touchstart', (e) => { dibujando = true; e.preventDefault(); });
+        canvas.addEventListener('touchend', () => dibujando = false);
+        canvas.addEventListener('touchmove', (e) => { dibujar(e.touches[0]); e.preventDefault(); });
+
+        function dibujar(e) {
+            if (!dibujando) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.pageX) - rect.left;
+            const y = (e.clientY || e.pageY) - rect.top;
+            ctx.fillStyle = colorActual;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function cambiarColor(color) {
+            colorActual = color;
+        }
+
+        function limpiarCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function enviarCarta() {
+            // Guardar datos
+            const datos = {
+                de: document.getElementById('de').value,
+                para: document.getElementById('para').value,
+                mensaje: document.getElementById('mensaje').value,
+                imagen: document.getElementById('imagen').value,
+                musica: document.getElementById('musica').value,
+                ubicacion: document.getElementById('ubicacion').value,
+                cupon1: document.getElementById('cupon1').value,
+                cupon2: document.getElementById('cupon2').value,
+                dibujo: canvas.toDataURL()
+            };
+
+            // Animación cerrar hoja
+            document.getElementById('hojaVintage').classList.add('cerrando');
+
+            setTimeout(() => {
+                // Cambiar a noche
+                document.getElementById('escena3').classList.remove('activa');
+                document.getElementById('escena4').classList.add('activa');
+
+                // Crear estrellas
+                for(let i = 0; i < 100; i++) {
+                    const estrella = document.createElement('div');
+                    estrella.className = 'estrella';
+                    estrella.style.left = Math.random() * 100 + '%';
+                    estrella.style.top = Math.random() * 60 + '%';
+                    estrella.style.animationDelay = Math.random() * 3 + 's';
+                    document.getElementById('particulas4').appendChild(estrella);
+                }
+
+                // Generar link con datos codificados
+                const link = window.location.origin + window.location.pathname + '#' + btoa(JSON.stringify(datos));
+                document.getElementById('linkFinal').innerHTML = `
+                    Comparte este link:<br>
+                    <input type="text" value="${link}" readonly style="margin-top: 10px; text-align: center;">
+                    <button onclick="navigator.clipboard.writeText('${link}')" style="margin-top: 10px;">📋 Copiar Link</button>
+                `;
+            }, 1000);
+        }
+
+        // Si hay datos en el URL, mostrar la carta recibida
+        window.onload = function() {
+            if (window.location.hash) {
+                try {
+                    const datos = JSON.parse(atob(window.location.hash.substring(1)));
+                    // Aquí podrías mostrar una versión de "carta recibida" con animación
+                    alert(`💌 Tienes una Pingüi-Carta de ${datos.de} para ${datos.para}!\n\n${datos.mensaje}`);
+                } catch(e) {}
+            }
+        }
+    </script>
 </body>
 </html>
+
+    
