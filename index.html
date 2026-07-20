@@ -3,542 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pingüi-Carta Virtual 2.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <title>Pingüi-Carta 3.0 💙</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Fredoka', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Fredoka', sans-serif; overflow-x: hidden; }
+        
+        /* Fondo auroras + montañas + mar */
+       .aurora-bg {
+            background: linear-gradient(to bottom, #0f172a 0%, #1e1b4b 20%, #312e81 40%, #1e3a8a 60%, #0c4a6e 80%, #164e63 100%);
+            position: relative;
             overflow: hidden;
-            transition: background 2s ease;
         }
-
-        /* FONDOS DÍA Y NOCHE */
-       .escena {
-            position: fixed;
-            width: 100vw;
-            height: 100vh;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-       .escena.activa { display: flex; }
-
-        #escena1 {
-            background: linear-gradient(to bottom, #a8d8ea 0%, #e0f6ff 60%, #ffffff 100%);
-        }
-        #escena1.noche {
-            background: linear-gradient(to bottom, #0c1445 0%, #1a237e 60%, #0d47a1 100%);
-        }
-
-        /* NIEVE/ESTRELLAS */
-       .particulas {
+       .aurora {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-       .nieve {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            animation: caer 10s linear infinite;
-        }
-       .estrella {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            animation: titilar 3s ease-in-out infinite;
-        }
-        @keyframes caer {
-            from { transform: translateY(-10vh); opacity: 1; }
-            to { transform: translateY(110vh); opacity: 0; }
-        }
-        @keyframes titilar {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 1; }
-        }
-
-        /* PINGÜINO CAMINANDO */
-        #pinguino-entrega {
-            position: absolute;
-            bottom: 20%;
-            left: -100px;
-            width: 80px;
-            height: 100px;
-            animation: caminar 4s ease-out forwards;
-        }
-        @keyframes caminar {
-            to { left: calc(50% - 40px); }
-        }
-       .pinguino {
-            width: 80px;
-            height: 100px;
-            background: #2c3e50;
-            border-radius: 50% 50% 40% 40%;
-            position: relative;
-        }
-       .pinguino::before {
-            content: '';
-            position: absolute;
-            width: 50px;
-            height: 60px;
-            background: white;
-            border-radius: 50%;
-            top: 30px;
-            left: 15px;
-        }
-       .pico {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 12px solid #f39c12;
-            top: 25px;
-            left: 32px;
-        }
-       .mochila {
-            position: absolute;
-            width: 25px;
-            height: 30px;
-            background: #e74c3c;
-            border-radius: 5px;
-            right: -5px;
-            top: 35px;
-        }
-
-        /* SOBRE */
-       .sobre {
-            width: 200px;
-            height: 120px;
-            background: #f8f4e8;
-            border: 2px solid #d4c5a9;
-            border-radius: 5px;
-            position: absolute;
-            bottom: 35%;
-            left: 50%;
-            transform: translateX(-50%) scale(0);
-            animation: aparecerSobre 1s 4s forwards;
-            cursor: pointer;
-            transition: transform 0.3s;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-       .sobre:hover { transform: translateX(-50%) scale(1.05); }
-        @keyframes aparecerSobre {
-            to { transform: translateX(-50%) scale(1); }
-        }
-       .sobre::before {
-            content: '';
-            position: absolute;
+            width: 200%;
+            height: 60%;
             top: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: linear-gradient(135deg, transparent 50%, #d4c5a9 50%);
-            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            background: linear-gradient(90deg, transparent, #22d3ee, #a855f7, #ec4899, transparent);
+            opacity: 0.3;
+            filter: blur(60px);
+            animation: aurora 8s ease-in-out infinite;
         }
-
-        /* FORMULARIO SOBRE */
-       .form-sobre {
-            background: rgba(255,255,255,0.95);
-            padding: 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            display: none;
+        @keyframes aurora {
+            0%, 100% { transform: translateX(-50%) skewX(-15deg); }
+            50% { transform: translateX(0%) skewX(15deg); }
         }
-       .form-sobre.activo { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #a8d8ea;
-            border-radius: 10px;
-            font-family: 'Fredoka', sans-serif;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover { transform: scale(1.02); }
-
-        /* ESCENA DE CARGA */
-        #escena2 { background: #a8d8ea; }
-       .pinguinos-carga {
-            display: flex;
-            gap: 100px;
-        }
-       .pinguino-slide {
-            animation: deslizar 2s ease-in-out infinite;
-        }
-       .pinguino-slide:nth-child(2) { animation-delay: 0.5s; }
-        @keyframes deslizar {
-            0%, 100% { transform: translateX(-50px); }
-            50% { transform: translateX(50px); }
-        }
-
-        /* HOJA VINTAGE */
-        #escena3 {
-            background: #a8d8ea;
-            padding: 20px;
-            overflow-y: auto;
-        }
-       .hoja-vintage {
-            background: #f4e4c1;
-            background-image:
-                repeating-linear-gradient(0deg, transparent, transparent 31px, #d4c5a9 31px, #d4c5a9 32px),
-                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.1"/></svg>');
-            padding: 40px;
-            border-radius: 5px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.3), inset 0 0 100px rgba(139,69,19,0.1);
-            max-width: 700px;
-            width: 100%;
-            position: relative;
-            animation: abrirHoja 1s ease-out;
-        }
-        @keyframes abrirHoja {
-            from { transform: rotateX(90deg); opacity: 0; }
-            to { transform: rotateX(0); opacity: 1; }
-        }
-       .hoja-vintage.cerrando {
-            animation: cerrarHoja 1s ease-in forwards;
-        }
-        @keyframes cerrarHoja {
-            to { transform: rotateX(90deg) scale(0.8); opacity: 0; }
-        }
-
-        /* CUPONES */
-       .cupones {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-        }
-       .cupon {
-            flex: 1;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 15px;
-            border-radius: 10px;
-            color: white;
-            border: 2px dashed white;
-        }
-       .cupon input {
-            background: rgba(255,255,255,0.3);
-            border: 1px solid white;
-            color: white;
-            margin: 5px 0;
-        }
-       .cupon input::placeholder { color: rgba(255,255,255,0.8); }
-
-        /* CANVAS DIBUJO */
-        #canvas-dibujo {
-            border: 2px dashed #8b7355;
-            background: rgba(255,255,255,0.5);
-            cursor: crosshair;
-            display: block;
-            margin: 15px 0;
-            border-radius: 5px;
-        }
-       .colores {
-            display: flex;
-            gap: 10px;
-            margin: 10px 0;
-        }
-       .color-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 3px solid #8b7355;
-            cursor: pointer;
-        }
-
-        /* ESCENA FINAL NOCHE */
-        #escena4 {
-            background: linear-gradient(to bottom, #0c1445 0%, #1a237e 100%);
-        }
-       .fogata {
-            position: absolute;
-            bottom: 10%;
-            width: 60px;
-            height: 80px;
-        }
-       .fuego {
-            width: 40px;
-            height: 60px;
-            background: radial-gradient(ellipse at bottom, #ff6b35 0%, #f7931e 40%, transparent 70%);
-            margin: 0 auto;
-            animation: fuego 1s ease-in-out infinite alternate;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-        }
-        @keyframes fuego {
-            from { transform: scaleY(1); }
-            to { transform: scaleY(1.2); }
-        }
-       .troncos {
-            width: 60px;
-            height: 10px;
-            background: #4a2c17;
-            position: absolute;
-            bottom: 0;
-            border-radius: 5px;
-        }
-       .troncos:nth-child(2) { transform: rotate(45deg); }
-       .troncos:nth-child(3) { transform: rotate(-45deg); }
-
-       .pinguinos-fogata {
+        
+       .montanas {
             position: absolute;
             bottom: 15%;
-            display: flex;
-            gap: 80px;
+            width: 100%;
+            height: 30%;
+            background: #1e293b;
+            clip-path: polygon(0% 100%, 10% 60%, 20% 80%, 30% 40%, 40% 70%, 50% 30%, 60% 60%, 70% 45%, 80% 75%, 90% 50%, 100% 70%, 100% 100%);
         }
-
-       .mensaje-final {
+       .mar {
             position: absolute;
-            top: 20%;
-            text-align: center;
-            color: white;
-            font-size: 24px;
-            animation: fadeIn 2s 1s both;
+            bottom: 0;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(to bottom, #0e7490, #155e75);
         }
-
-        h1, h2, h3 { color: #2c3e50; margin-bottom: 15px; }
-        label { display: block; color: #5a6c7d; font-weight: 600; margin-top: 15px; }
+        
+        /* Pingüino caricaturizado */
+       .pinguino-kawaii {
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+       .carta-pagina {
+            background: #fef9f3;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            min-height: 500px;
+        }
+        
+        #canvas {
+            border: 3px dashed #94a3b8;
+            border-radius: 12px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        
+       .fogata {
+            animation: flame 1s ease-in-out infinite alternate;
+        }
+        @keyframes flame {
+            0% { transform: scale(1) rotate(-2deg); }
+            100% { transform: scale(1.1) rotate(2deg); }
+        }
     </style>
 </head>
-<body>
-    <!-- ESCENA 1: ENTREGA -->
-    <div id="escena1" class="escena activa">
-        <div class="particulas" id="particulas1"></div>
-        <div id="pinguino-entrega">
-            <div class="pinguino">
-                <div class="pico"></div>
-                <div class="mochila"></div>
+<body class="aurora-bg min-h-screen">
+    <!-- Auroras -->
+    <div class="aurora"></div>
+    <div class="aurora" style="animation-delay: -4s; opacity: 0.2;"></div>
+    <div class="montanas"></div>
+    <div class="mar"></div>
+
+    <!-- PANTALLA 1: Inicio -->
+    <div id="pantalla1" class="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white/95 backdrop-blur rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <div class="text-center mb-6">
+                <svg class="pinguino-kawaii w-24 h-24 mx-auto mb-4" viewBox="0 0 100 100">
+                    <!-- Pingüino kawaii -->
+                    <ellipse cx="50" cy="60" rx="25" ry="35" fill="#1e293b"/>
+                    <ellipse cx="50" cy="65" rx="18" ry="25" fill="white"/>
+                    <circle cx="42" cy="45" r="5" fill="white"/>
+                    <circle cx="58" cy="45" r="5" fill="white"/>
+                    <circle cx="42" cy="45" r="2" fill="#1e293b"/>
+                    <circle cx="58" cy="45" r="2" fill="#1e293b"/>
+                    <polygon points="50,50 46,55 54,55" fill="#f97316"/>
+                    <ellipse cx="35" cy="60" rx="6" ry="12" fill="#1e293b" transform="rotate(-20 35 60)"/>
+                    <ellipse cx="65" cy="60" rx="6" ry="12" fill="#1e293b" transform="rotate(20 65 60)"/>
+                </svg>
+                <h1 class="text-3xl font-bold text-slate-800 mb-2">Pingüi-Carta 3.0 💙</h1>
             </div>
-        </div>
-        <div class="sobre" id="sobre" onclick="abrirSobre()"></div>
-        <div class="form-sobre" id="formSobre">
-            <h2>🐧 ¿Para quién es esta carta?</h2>
-            <input type="text" id="de" placeholder="De: Tu nombre">
-            <input type="text" id="para" placeholder="Para: Nombre de tu persona especial">
-            <button onclick="iniciarCarga()">Empezar mi Pingüi-Carta ✨</button>
+            <input id="deNombre" placeholder="De: Tu nombre" class="w-full p-4 mb-3 rounded-xl border-2 border-slate-200 text-lg">
+            <input id="paraNombre" placeholder="Para: Tu persona especial" class="w-full p-4 mb-4 rounded-xl border-2 border-slate-200 text-lg">
+            <button onclick="abrirCarta()" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-xl font-bold text-lg hover:scale-105 transition">
+                Empezar mi Pingüi-Carta ✨
+            </button>
         </div>
     </div>
 
-    <!-- ESCENA 2: CARGA -->
-    <div id="escena2" class="escena">
-        <h2 style="color: white; margin-bottom: 50px;">Preparando tu carta...</h2>
-        <div class="pinguinos-carga">
-            <div class="pinguino pinguino-slide">
-                <div class="pico"></div>
+    <!-- PANTALLA 2: Carta con 2 páginas -->
+    <div id="pantalla2" class="hidden relative z-10 min-h-screen p-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- Navegación páginas -->
+            <div class="flex justify-center gap-4 mb-4">
+                <button onclick="mostrarPagina(1)" id="btnPag1" class="px-6 py-2 bg-white rounded-full font-bold shadow-lg">Página 1</button>
+                <button onclick="mostrarPagina(2)" id="btnPag2" class="px-6 py-2 bg-white/50 rounded-full font-bold">Página 2</button>
             </div>
-            <div class="pinguino pinguino-slide">
-                <div class="pico"></div>
-            </div>
-        </div>
-    </div>
 
-    <!-- ESCENA 3: CREAR CARTA -->
-    <div id="escena3" class="escena">
-        <div class="hoja-vintage" id="hojaVintage">
-            <h1>📜 Mi Pingüi-Carta</h1>
-            <p style="color: #8b7355; margin-bottom: 20px;">
-                <strong>De:</strong> <span id="mostrarDe"></span> |
-                <strong>Para:</strong> <span id="mostrarPara"></span>
-            </p>
-
-            <label>✍️ Tu mensaje:</label>
-            <textarea id="mensaje" rows="4" placeholder="Escribe algo bonito..."></textarea>
-
-            <label>🖼️ Link de imagen:</label>
-            <input type="url" id="imagen" placeholder="https://ejemplo.com/foto.jpg">
-
-            <label>🎵 Link de canción (YouTube, Spotify, MP3):</label>
-            <input type="url" id="musica" placeholder="https://...">
-
-            <label>📍 Link del lugar desde donde envías:</label>
-            <input type="url" id="ubicacion" placeholder="https://maps.google.com/...">
-
-            <h3>🎟️ Cupones Especiales</h3>
-            <div class="cupones">
-                <div class="cupon">
-                    <input type="text" id="cupon1" placeholder="Vale por...">
+            <!-- PÁGINA 1: Mensaje + Canción -->
+            <div id="pagina1" class="carta-pagina rounded-3xl p-8">
+                <h2 class="text-2xl font-bold mb-4 text-slate-800">Para: <span id="nombreDestino"></span> 💙</h2>
+                <textarea id="mensaje" placeholder="Escribe tu mensaje aquí..." class="w-full h-64 p-4 border-2 border-slate-200 rounded-xl mb-4 text-lg" ></textarea>
+                <div class="mb-4">
+                    <label class="font-bold text-slate-700 mb-2 block">🎵 Agrega una canción:</label>
+                    <input id="linkCancion" placeholder="Pega link de Spotify o YouTube" class="w-full p-3 border-2 border-slate-200 rounded-xl">
+                    <div id="playerCancion" class="mt-3"></div>
                 </div>
-                <div class="cupon">
-                    <input type="text" id="cupon2" placeholder="Cupón para...">
+                <p class="text-right text-slate-600 mt-6">Con cariño, <span id="nombreRemitente"></span> 🐧</p>
+            </div>
+
+            <!-- PÁGINA 2: Cupones + Mapa + Dibujo -->
+            <div id="pagina2" class="hidden carta-pagina rounded-3xl p-8">
+                <h3 class="text-xl font-bold mb-4">🎟️ Cupones para ti</h3>
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-pink-100 p-4 rounded-xl border-2 border-dashed border-pink-300">
+                        <input placeholder="Cupón #1: Ej. Una cena" class="w-full p-2 rounded mb-2">
+                        <textarea placeholder="Descripción" class="w-full p-2 rounded text-sm" rows="2"></textarea>
+                    </div>
+                    <div class="bg-blue-100 p-4 rounded-xl border-2 border-dashed border-blue-300">
+                        <input placeholder="Cupón #2: Ej. Película juntos" class="w-full p-2 rounded mb-2">
+                        <textarea placeholder="Descripción" class="w-full p-2 rounded text-sm" rows="2"></textarea>
+                    </div>
                 </div>
+
+                <h3 class="text-xl font-bold mb-4">📍 Nuestra distancia</h3>
+                <div id="mapa" class="h-48 rounded-xl mb-4 bg-slate-200"></div>
+                <p class="text-center mb-6 font-bold text-purple-600" id="distanciaTexto">Haz click en 2 puntos del mapa</p>
+
+                <h3 class="text-xl font-bold mb-4">🎨 Dibuja algo para mí</h3>
+                <canvas id="canvas" width="700" height="300" class="w-full bg-white"></canvas>
+                <button onclick="limpiarCanvas()" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg">Limpiar dibujo</button>
             </div>
 
-            <label>🎨 Firma o dibuja algo:</label>
-            <canvas id="canvas-dibujo" width="600" height="200"></canvas>
-            <div class="colores">
-                <div class="color-btn" style="background: #2c3e50;" onclick="cambiarColor('#2c3e50')"></div>
-                <div class="color-btn" style="background: #e74c3c;" onclick="cambiarColor('#e74c3c')"></div>
-                <div class="color-btn" style="background: #3498db;" onclick="cambiarColor('#3498db')"></div>
-                <div class="color-btn" style="background: #2ecc71;" onclick="cambiarColor('#2ecc71')"></div>
-                <button onclick="limpiarCanvas()" style="width: auto; padding: 10px 20px;">🗑️</button>
+            <div class="flex justify-center gap-4 mt-6">
+                <button onclick="cerrarCarta()" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-bold text-lg hover:scale-105 transition">
+                    Cerrar Carta 💌
+                </button>
             </div>
-
-            <button onclick="enviarCarta()">✨ Cerrar y Enviar Carta ✨</button>
         </div>
     </div>
 
-    <!-- ESCENA 4: FINAL NOCHE -->
-    <div id="escena4" class="escena">
-        <div class="particulas" id="particulas4"></div>
-        <div class="mensaje-final">
-            <h2>Tu Pingüi-Carta fue entregada ❤️</h2>
-            <p id="linkFinal" style="margin-top: 20px; font-size: 16px;"></p>
-            <button onclick="location.reload()" style="width: auto; margin-top: 20px;">Crear otra carta</button>
-        </div>
-        <div class="pinguinos-fogata">
-            <div class="pinguino" style="transform: scale(0.8);">
-                <div class="pico"></div>
+    <!-- PANTALLA 3: Final con fogata -->
+    <div id="pantalla3" class="hidden relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div class="text-center">
+            <h2 class="text-4xl font-bold text-white mb-8">¡Carta entregada! 💙</h2>
+            <!-- Escena fogata con pingüinos -->
+            <svg viewBox="0 0 400 300" class="w-full max-w-2xl mx-auto mb-8">
+                <!-- Pinos -->
+                <polygon points="50,200 70,100 90,200" fill="#065f46"/>
+                <polygon points="320,200 340,80 360,200" fill="#065f46"/>
+                <polygon points="100,220 120,120 140,220" fill="#047857"/>
+                <!-- Fogata -->
+                <ellipse cx="200" cy="230" rx="40" ry="10" fill="#451a03" opacity="0.5"/>
+                <g class="fogata">
+                    <polygon points="200,230 190,200 210,200" fill="#f97316"/>
+                    <polygon points="200,220 185,195 215,195" fill="#fbbf24"/>
+                    <polygon points="200,215 192,190 208,190" fill="#fef08a"/>
+                </g>
+                <!-- Pingüino con guitarra -->
+                <g transform="translate(150, 180)">
+                    <ellipse cx="0" cy="20" rx="18" ry="28" fill="#1e293b"/>
+                    <ellipse cx="0" cy="25" rx="12" ry="20" fill="white"/>
+                    <circle cx="-5" cy="5" r="4" fill="white"/>
+                    <circle cx="5" cy="5" r="4" fill="white"/>
+                    <circle cx="-5" cy="5" r="1.5" fill="#1e293b"/>
+                    <circle cx="5" cy="5" r="1.5" fill="#1e293b"/>
+                    <polygon points="0,10 -3,14 3,14" fill="#f97316"/>
+                    <rect x="10" y="15" width="8" height="25" rx="4" fill="#92400e"/>
+                    <circle cx="14" cy="12" r="6" fill="#a16207"/>
+                </g>
+                <!-- Pingüino con pescado -->
+                <g transform="translate(250, 180)">
+                    <ellipse cx="0" cy="20" rx="18" ry="28" fill="#1e293b"/>
+                    <ellipse cx="0" cy="25" rx="12" ry="20" fill="white"/>
+                    <circle cx="-5" cy="5" r="4" fill="white"/>
+                    <circle cx="5" cy="5" r="4" fill="white"/>
+                    <circle cx="-5" cy="5" r="1.5" fill="#1e293b"/>
+                    <circle cx="5" cy="5" r="1.5" fill="#1e293b"/>
+                    <polygon points="0,10 -3,14 3,14" fill="#f97316"/>
+                    <g transform="translate(15, 25) rotate(-30)">
+                        <ellipse cx="0" cy="0" rx="12" ry="6" fill="#94a3b8"/>
+                        <polygon points="12,0 18,-4 18,4" fill="#94a3b8"/>
+                        <circle cx="-6" cy="0" r="1" fill="#1e293b"/>
+                    </g>
+                </g>
+            </svg>
+            <div class="flex justify-center gap-4">
+                <button onclick="compartirLink()" class="px-8 py-4 bg-blue-500 text-white rounded-xl font-bold text-lg hover:scale-105 transition">
+                    🔗 Compartir Link
+                </button>
+                <button onclick="location.reload()" class="px-8 py-4 bg-purple-500 text-white rounded-xl font-bold text-lg hover:scale-105 transition">
+                    ✨ Crear Nueva Carta
+                </button>
             </div>
-            <div class="pinguino" style="transform: scale(0.8);">
-                <div class="pico"></div>
-            </div>
-        </div>
-        <div class="fogata">
-            <div class="troncos"></div>
-            <div class="troncos"></div>
-            <div class="troncos"></div>
-            <div class="fuego"></div>
         </div>
     </div>
 
     <script>
-        // Crear nieve
-        for(let i = 0; i < 50; i++) {
-            const nieve = document.createElement('div');
-            nieve.className = 'nieve';
-            nieve.style.left = Math.random() * 100 + '%';
-            nieve.style.animationDelay = Math.random() * 10 + 's';
-            nieve.style.animationDuration = (Math.random() * 5 + 5) + 's';
-            document.getElementById('particulas1').appendChild(nieve);
-        }
-
-        function abrirSobre() {
-            document.getElementById('sobre').style.display = 'none';
-            document.getElementById('formSobre').classList.add('activo');
-        }
-
-        function iniciarCarga() {
-            const de = document.getElementById('de').value || 'Alguien especial';
-            const para = document.getElementById('para').value || 'Tú';
-            document.getElementById('mostrarDe').textContent = de;
-            document.getElementById('mostrarPara').textContent = para;
-
-            document.getElementById('escena1').classList.remove('activa');
-            document.getElementById('escena2').classList.add('activa');
-
-            setTimeout(() => {
-                document.getElementById('escena2').classList.remove('activa');
-                document.getElementById('escena3').classList.add('activa');
-            }, 3000);
-        }
-
-        // Canvas dibujo
-        const canvas = document.getElementById('canvas-dibujo');
-        const ctx = canvas.getContext('2d');
+        let paginaActual = 1;
+        let puntosMapa = [];
+        let mapa;
         let dibujando = false;
-        let colorActual = '#2c3e50';
+        let ctx;
 
-        canvas.addEventListener('mousedown', () => dibujando = true);
-        canvas.addEventListener('mouseup', () => dibujando = false);
-        canvas.addEventListener('mousemove', dibujar);
-        canvas.addEventListener('touchstart', (e) => { dibujando = true; e.preventDefault(); });
-        canvas.addEventListener('touchend', () => dibujando = false);
-        canvas.addEventListener('touchmove', (e) => { dibujar(e.touches[0]); e.preventDefault(); });
+        function abrirCarta() {
+            const de = document.getElementById('deNombre').value || 'Alguien especial';
+            const para = document.getElementById('paraNombre').value || 'Tú';
+            document.getElementById('nombreRemitente').textContent = de;
+            document.getElementById('nombreDestino').textContent = para;
+            
+            // Confeti premium
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#ec4899', '#8b5cf6', '#3b82f6', '#22d3ee', '#fbbf24']
+            });
+            
+            document.getElementById('pantalla1').classList.add('hidden');
+            document.getElementById('pantalla2').classList.remove('hidden');
+            initMapa();
+            initCanvas();
+        }
+
+        function mostrarPagina(num) {
+            document.getElementById('pagina1').classList.toggle('hidden', num!== 1);
+            document.getElementById('pagina2').classList.toggle('hidden', num!== 2);
+            document.getElementById('btnPag1').classList.toggle('bg-white/50', num!== 1);
+            document.getElementById('btnPag1').classList.toggle('bg-white', num === 1);
+            document.getElementById('btnPag2').classList.toggle('bg-white/50', num!== 2);
+            document.getElementById('btnPag2').classList.toggle('bg-white', num === 2);
+        }
+
+        function initMapa() {
+            mapa = L.map('mapa').setView([19.4326, -99.1332], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+            
+            mapa.on('click', function(e) {
+                if (puntosMapa.length < 2) {
+                    puntosMapa.push(e.latlng);
+                    L.marker(e.latlng).addTo(mapa);
+                    
+                    if (puntosMapa.length === 2) {
+                        const distancia = mapa.distance(puntosMapa[0], puntosMapa[1]) / 1000;
+                        document.getElementById('distanciaTexto').textContent = `💕 Nos separan ${distancia.toFixed(1)} km pero estamos conectados 💕`;
+                        L.polyline(puntosMapa, {color: '#ec4899', weight: 3}).addTo(mapa);
+                    }
+                }
+            });
+        }
+
+        function initCanvas() {
+            const canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+
+            canvas.addEventListener('mousedown', () => dibujando = true);
+            canvas.addEventListener('mouseup', () => { dibujando = false; ctx.beginPath(); });
+            canvas.addEventListener('mousemove', dibujar);
+            
+            // Touch para móvil
+            canvas.addEventListener('touchstart', (e) => { dibujando = true; });
+            canvas.addEventListener('touchend', () => { dibujando = false; ctx.beginPath(); });
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                dibujar({ offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top });
+            });
+        }
 
         function dibujar(e) {
             if (!dibujando) return;
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX || e.pageX) - rect.left;
-            const y = (e.clientY || e.pageY) - rect.top;
-            ctx.fillStyle = colorActual;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
             ctx.beginPath();
-            ctx.arc(x, y, 3, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function cambiarColor(color) {
-            colorActual = color;
+            ctx.moveTo(e.offsetX, e.offsetY);
         }
 
         function limpiarCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         }
 
-        function enviarCarta() {
-            // Guardar datos
-            const datos = {
-                de: document.getElementById('de').value,
-                para: document.getElementById('para').value,
-                mensaje: document.getElementById('mensaje').value,
-                imagen: document.getElementById('imagen').value,
-                musica: document.getElementById('musica').value,
-                ubicacion: document.getElementById('ubicacion').value,
-                cupon1: document.getElementById('cupon1').value,
-                cupon2: document.getElementById('cupon2').value,
-                dibujo: canvas.toDataURL()
-            };
-
-            // Animación cerrar hoja
-            document.getElementById('hojaVintage').classList.add('cerrando');
-
+        function cerrarCarta() {
+            document.getElementById('pantalla2').classList.add('hidden');
+            document.getElementById('pantalla3').classList.remove('hidden');
+            
+            // Confeti final
             setTimeout(() => {
-                // Cambiar a noche
-                document.getElementById('escena3').classList.remove('activa');
-                document.getElementById('escena4').classList.add('activa');
-
-                // Crear estrellas
-                for(let i = 0; i < 100; i++) {
-                    const estrella = document.createElement('div');
-                    estrella.className = 'estrella';
-                    estrella.style.left = Math.random() * 100 + '%';
-                    estrella.style.top = Math.random() * 60 + '%';
-                    estrella.style.animationDelay = Math.random() * 3 + 's';
-                    document.getElementById('particulas4').appendChild(estrella);
-                }
-
-                // Generar link con datos codificados
-                const link = window.location.origin + window.location.pathname + '#' + btoa(JSON.stringify(datos));
-                document.getElementById('linkFinal').innerHTML = `
-                    Comparte este link:<br>
-                    <input type="text" value="${link}" readonly style="margin-top: 10px; text-align: center;">
-                    <button onclick="navigator.clipboard.writeText('${link}')" style="margin-top: 10px;">📋 Copiar Link</button>
-                `;
-            }, 1000);
+                confetti({ particleCount: 200, spread: 160, origin: { y: 0.6 } });
+            }, 300);
         }
 
-        // Si hay datos en el URL, mostrar la carta recibida
-        window.onload = function() {
-            if (window.location.hash) {
-                try {
-                    const datos = JSON.parse(atob(window.location.hash.substring(1)));
-                    // Aquí podrías mostrar una versión de "carta recibida" con animación
-                    alert(`💌 Tienes una Pingüi-Carta de ${datos.de} para ${datos.para}!\n\n${datos.mensaje}`);
-                } catch(e) {}
+        function compartirLink() {
+            const link = window.location.href;
+            navigator.clipboard.writeText(link);
+            alert('¡Link copiado! 💙 Compártelo con tu persona especial');
+        }
+
+        // Cargar canción de YouTube/Spotify
+        document.getElementById('linkCancion').addEventListener('change', function(e) {
+            const url = e.target.value;
+            const player = document.getElementById('playerCancion');
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                const videoId = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
+                player.innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen class="rounded-xl"></iframe>`;
+            } else if (url.includes('spotify.com')) {
+                const trackId = url.split('track/')[1]?.split('?')[0];
+                player.innerHTML = `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="200" frameborder="0" class="rounded-xl"></iframe>`;
             }
-        }
+        });
     </script>
 </body>
 </html>
