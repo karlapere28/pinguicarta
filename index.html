@@ -15,13 +15,13 @@
             overflow-x: hidden;
         }
 
-     .fondo-dinamico {
+    .fondo-dinamico {
             background: linear-gradient(to bottom, #0f172a 0%, #1e1b4b 20%, #312e81 40%, #1e3a8a 60%, #0c4a6e 80%, #164e63 100%);
             position: fixed;
             inset: 0;
             z-index: 0;
         }
-     .aurora {
+    .aurora {
             position: absolute;
             width: 200%;
             height: 50%;
@@ -35,7 +35,7 @@
             0%, 100% { transform: translateX(-50%) skewX(-15deg); }
             50% { transform: translateX(0%) skewX(15deg); }
         }
-     .montanas {
+    .montanas {
             position: absolute;
             bottom: 20%;
             width: 100%;
@@ -43,14 +43,14 @@
             background: #1e293b;
             clip-path: polygon(0% 100%, 10% 60%, 20% 80%, 30% 40%, 40% 70%, 50% 30%, 60% 60%, 70% 45%, 80% 75%, 90% 50%, 100% 70%, 100% 100%);
         }
-     .mar {
+    .mar {
             position: absolute;
             bottom: 0;
             width: 100%;
             height: 25%;
             background: linear-gradient(to bottom, #0e7490, #155e75);
         }
-     .waves {
+    .waves {
             position: absolute;
             bottom: 0;
             width: 100%;
@@ -63,8 +63,8 @@
             100% { background-position-x: 1440px; }
         }
 
-     .cartero-anim {
-            animation: entrarCartero 3s ease-out forwards;
+    .cartero-anim {
+            animation: entrarCartero 2s ease-out forwards;
         }
         @keyframes entrarCartero {
             0% { transform: translateX(-300px) rotate(-15deg); }
@@ -72,16 +72,17 @@
             70% { transform: scale(1.15); }
             100% { transform: scale(1); }
         }
-     .carta-volando {
-            animation: volarCarta 1.5s ease-out 2s forwards;
+    .carta-volando {
+            animation: volarCarta 1s ease-out 1.5s forwards;
             opacity: 0;
+            cursor: pointer;
         }
         @keyframes volarCarta {
             0% { opacity: 0; transform: translateY(0) scale(0.3) rotate(-30deg); }
             100% { opacity: 1; transform: translateY(-40px) scale(1) rotate(0deg); }
         }
 
-     .glass-card {
+    .glass-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(12px);
             box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
@@ -97,24 +98,24 @@
             background-color: white;
         }
 
-     .carta-pagina {
+    .carta-pagina {
             background: #fef9f3;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             min-height: 500px;
         }
 
-     .estrella {
+    .estrella {
             position: absolute;
             cursor: pointer;
             animation: brillar 2s ease-in-out infinite;
             transition: all 0.3s;
             user-select: none;
         }
-     .estrella:hover {
+    .estrella:hover {
             transform: scale(1.8);
             filter: drop-shadow(0 0 15px #fbbf24);
         }
-     .estrella.activa {
+    .estrella.activa {
             filter: drop-shadow(0 0 20px #fbbf24);
             animation: pulsar 0.6s ease-in-out infinite;
         }
@@ -127,7 +128,7 @@
             50% { transform: scale(1.5); }
         }
 
-     .fogata {
+    .fogata {
             animation: flame 0.8s ease-in-out infinite alternate;
         }
         @keyframes flame {
@@ -135,7 +136,7 @@
             100% { transform: scale(1.15) rotate(3deg); }
         }
 
-     .pinguino-bounce {
+    .pinguino-bounce {
             animation: bounce 2s ease-in-out infinite;
         }
         @keyframes bounce {
@@ -154,7 +155,7 @@
     </div>
 
     <!-- PANTALLA 0: INTRO PINGÜINO CARTERO -->
-    <div id="intro" class="relative z-10 min-h-screen flex items-center justify-center p-4">
+    <div id="intro" class="relative z-20 min-h-screen flex items-center justify-center p-4">
         <div class="text-center">
             <h2 class="text-3xl font-bold text-white mb-8 drop-shadow-lg">¡Tienes una Pingüi-Carta! 💌</h2>
             <div class="cartero-anim inline-block mb-8">
@@ -180,7 +181,7 @@
                 </svg>
             </div>
 
-            <div class="carta-volando inline-block cursor-pointer" onclick="empezarCarta()">
+            <div class="carta-volando inline-block" onclick="empezarCarta()" style="z-index: 30; position: relative;">
                 <div class="bg-white rounded-3xl p-8 shadow-2xl border-4 border-blue-300 hover:scale-110 transition">
                     <svg width="100" height="70" viewBox="0 0 100 70">
                         <rect x="5" y="15" width="90" height="50" rx="8" fill="#fef3c7"/>
@@ -415,7 +416,6 @@
         let mapa;
         let estrellasSeleccionadas = [];
         let retosGuardados = {};
-        let canvasDibujo;
         let datosCarta = {};
 
         // Detectar si hay datos de carta en la URL
@@ -496,7 +496,6 @@
                 return;
             }
 
-            // Guardar datos
             datosCarta = {
                 de: de,
                 para: para,
@@ -515,11 +514,24 @@
             document.getElementById('nombreDestino').textContent = para;
             document.getElementById('mensajeFinal').textContent = mensaje;
 
-            // Cargar canción
             const cancionUrl = datosCarta.cancion;
             const player = document.getElementById('cancionFinal');
             if (cancionUrl.includes('youtube.com') || cancionUrl.includes('youtu.be')) {
                 const videoId = cancionUrl.split('v=')[1]?.split('&')[0] || cancionUrl.split('/').pop();
                 player.innerHTML = `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen class="rounded-2xl"></iframe>`;
-            } else if (cancionUrl.includes('spotify.com'))
+            } else if (cancionUrl.includes('spotify.com')) {
+                const trackId = cancionUrl.split('track/')[1]?.split('?')[0];
+                player.innerHTML = `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="250" frameborder="0" class="rounded-2xl"></iframe>`;
+            }
+
+            document.getElementById('pantallaCrear').classList.add('hidden');
+            document.getElementById('pantallaCarta').classList.remove('hidden');
+            initMapa();
+        }
+
+        function mostrarPagina(num) {
+            document.getElementById('pagina1').classList.toggle('hidden', num!== 1);
+            document.getElementById('pagina2
+
+
     
