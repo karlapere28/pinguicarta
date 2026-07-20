@@ -3,218 +3,403 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pingüi-Carta 3.0 💙</title>
+    <title>Pingüi-Carta Virtual 💙</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Fredoka', sans-serif; overflow-x: hidden; }
-        
-        /* Fondo auroras + montañas + mar */
-       .aurora-bg {
-            background: linear-gradient(to bottom, #0f172a 0%, #1e1b4b 20%, #312e81 40%, #1e3a8a 60%, #0c4a6e 80%, #164e63 100%);
-            position: relative;
-            overflow: hidden;
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Fredoka', sans-serif;
+            overflow-x: hidden;
         }
-       .aurora {
+
+     .fondo-dinamico {
+            background: linear-gradient(to bottom, #0f172a 0%, #1e1b4b 20%, #312e81 40%, #1e3a8a 60%, #0c4a6e 80%, #164e63 100%);
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+     .aurora {
             position: absolute;
             width: 200%;
-            height: 60%;
+            height: 50%;
             top: 0;
             background: linear-gradient(90deg, transparent, #22d3ee, #a855f7, #ec4899, transparent);
-            opacity: 0.3;
-            filter: blur(60px);
+            opacity: 0.4;
+            filter: blur(80px);
             animation: aurora 8s ease-in-out infinite;
         }
         @keyframes aurora {
             0%, 100% { transform: translateX(-50%) skewX(-15deg); }
             50% { transform: translateX(0%) skewX(15deg); }
         }
-        
-       .montanas {
+     .montanas {
             position: absolute;
-            bottom: 15%;
+            bottom: 20%;
             width: 100%;
-            height: 30%;
+            height: 25%;
             background: #1e293b;
             clip-path: polygon(0% 100%, 10% 60%, 20% 80%, 30% 40%, 40% 70%, 50% 30%, 60% 60%, 70% 45%, 80% 75%, 90% 50%, 100% 70%, 100% 100%);
         }
-       .mar {
+     .mar {
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 20%;
+            height: 25%;
             background: linear-gradient(to bottom, #0e7490, #155e75);
         }
-        
-        /* Pingüino caricaturizado */
-       .pinguino-kawaii {
-            animation: bounce 2s ease-in-out infinite;
+     .waves {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%230596b9' fill-opacity='0.6' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+            animation: wave 8s linear infinite;
         }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+        @keyframes wave {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1440px; }
         }
-        
-       .carta-pagina {
+
+     .cartero-anim {
+            animation: entrarCartero 3s ease-out forwards;
+        }
+        @keyframes entrarCartero {
+            0% { transform: translateX(-300px) rotate(-15deg); }
+            60% { transform: translateX(0) rotate(0deg); }
+            70% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+     .carta-volando {
+            animation: volarCarta 1.5s ease-out 2s forwards;
+            opacity: 0;
+        }
+        @keyframes volarCarta {
+            0% { opacity: 0; transform: translateY(0) scale(0.3) rotate(-30deg); }
+            100% { opacity: 1; transform: translateY(-40px) scale(1) rotate(0deg); }
+        }
+
+     .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+
+        #canvas {
+            border: 3px solid #e0f2fe;
+            border-radius: 16px;
+            cursor: crosshair;
+            touch-action: none;
+            background-image: linear-gradient(#e0f2fe 1px, transparent 1px), linear-gradient(90deg, #e0f2fe 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-color: white;
+        }
+
+     .carta-pagina {
             background: #fef9f3;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             min-height: 500px;
         }
-        
-        #canvas {
-            border: 3px dashed #94a3b8;
-            border-radius: 12px;
-            cursor: crosshair;
-            touch-action: none;
+
+     .estrella {
+            position: absolute;
+            cursor: pointer;
+            animation: brillar 2s ease-in-out infinite;
+            transition: all 0.3s;
+            user-select: none;
         }
-        
-       .fogata {
-            animation: flame 1s ease-in-out infinite alternate;
+     .estrella:hover {
+            transform: scale(1.8);
+            filter: drop-shadow(0 0 15px #fbbf24);
+        }
+     .estrella.activa {
+            filter: drop-shadow(0 0 20px #fbbf24);
+            animation: pulsar 0.6s ease-in-out infinite;
+        }
+        @keyframes brillar {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        @keyframes pulsar {
+            0%, 100% { transform: scale(1.2); }
+            50% { transform: scale(1.5); }
+        }
+
+     .fogata {
+            animation: flame 0.8s ease-in-out infinite alternate;
         }
         @keyframes flame {
-            0% { transform: scale(1) rotate(-2deg); }
-            100% { transform: scale(1.1) rotate(2deg); }
+            0% { transform: scale(1) rotate(-3deg); }
+            100% { transform: scale(1.15) rotate(3deg); }
+        }
+
+     .pinguino-bounce {
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
         }
     </style>
 </head>
-<body class="aurora-bg min-h-screen">
-    <!-- Auroras -->
-    <div class="aurora"></div>
-    <div class="aurora" style="animation-delay: -4s; opacity: 0.2;"></div>
-    <div class="montanas"></div>
-    <div class="mar"></div>
+<body>
+    <div class="fondo-dinamico">
+        <div class="aurora"></div>
+        <div class="aurora" style="animation-delay: -4s; opacity: 0.25;"></div>
+        <div class="montanas"></div>
+        <div class="mar"></div>
+        <div class="waves"></div>
+    </div>
 
-    <!-- PANTALLA 1: Inicio -->
-    <div id="pantalla1" class="relative z-10 min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white/95 backdrop-blur rounded-3xl p-8 max-w-md w-full shadow-2xl">
-            <div class="text-center mb-6">
-                <svg class="pinguino-kawaii w-24 h-24 mx-auto mb-4" viewBox="0 0 100 100">
-                    <!-- Pingüino kawaii -->
-                    <ellipse cx="50" cy="60" rx="25" ry="35" fill="#1e293b"/>
-                    <ellipse cx="50" cy="65" rx="18" ry="25" fill="white"/>
-                    <circle cx="42" cy="45" r="5" fill="white"/>
-                    <circle cx="58" cy="45" r="5" fill="white"/>
-                    <circle cx="42" cy="45" r="2" fill="#1e293b"/>
-                    <circle cx="58" cy="45" r="2" fill="#1e293b"/>
-                    <polygon points="50,50 46,55 54,55" fill="#f97316"/>
-                    <ellipse cx="35" cy="60" rx="6" ry="12" fill="#1e293b" transform="rotate(-20 35 60)"/>
-                    <ellipse cx="65" cy="60" rx="6" ry="12" fill="#1e293b" transform="rotate(20 65 60)"/>
+    <!-- PANTALLA 0: INTRO PINGÜINO CARTERO -->
+    <div id="intro" class="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold text-white mb-8 drop-shadow-lg">¡Tienes una Pingüi-Carta! 💌</h2>
+            <div class="cartero-anim inline-block mb-8">
+                <svg width="180" height="180" viewBox="0 0 180 180">
+                    <ellipse cx="90" cy="110" rx="40" ry="50" fill="#1e3a8a"/>
+                    <ellipse cx="90" cy="115" rx="28" ry="38" fill="white"/>
+                    <ellipse cx="78" cy="85" rx="7" ry="9" fill="white"/>
+                    <ellipse cx="102" cy="85" rx="7" ry="9" fill="white"/>
+                    <circle cx="78" cy="87" r="4" fill="#1e3a8a"/>
+                    <circle cx="102" cy="87" r="4" fill="#1e3a8a"/>
+                    <ellipse cx="79" cy="84" rx="2" ry="3" fill="white"/>
+                    <ellipse cx="103" cy="84" rx="2" ry="3" fill="white"/>
+                    <polygon points="90,93 84,101 96,101" fill="#f97316"/>
+                    <path d="M 65 105 Q 90 110 115 105 L 115 115 Q 90 120 65 115 Z" fill="#38bdf8"/>
+                    <rect x="110" y="105" width="10" height="30" rx="5" fill="#38bdf8"/>
+                    <ellipse cx="60" cy="115" rx="8" ry="18" fill="#1e3a8a" transform="rotate(-25 60 115)"/>
+                    <ellipse cx="120" cy="115" rx="8" ry="18" fill="#1e3a8a" transform="rotate(25 120 115)"/>
+                    <ellipse cx="78" cy="160" rx="10" ry="6" fill="#f97316"/>
+                    <ellipse cx="102" cy="160" rx="10" ry="6" fill="#f97316"/>
+                    <rect x="125" y="95" width="30" height="35" rx="4" fill="#92400e"/>
+                    <rect x="127" y="97" width="26" height="4" fill="#fbbf24"/>
+                    <rect x="130" y="105" width="20" height="15" rx="2" fill="#fef3c7"/>
                 </svg>
-                <h1 class="text-3xl font-bold text-slate-800 mb-2">Pingüi-Carta 3.0 💙</h1>
             </div>
-            <input id="deNombre" placeholder="De: Tu nombre" class="w-full p-4 mb-3 rounded-xl border-2 border-slate-200 text-lg">
-            <input id="paraNombre" placeholder="Para: Tu persona especial" class="w-full p-4 mb-4 rounded-xl border-2 border-slate-200 text-lg">
-            <button onclick="abrirCarta()" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-xl font-bold text-lg hover:scale-105 transition">
-                Empezar mi Pingüi-Carta ✨
-            </button>
+
+            <div class="carta-volando inline-block cursor-pointer" onclick="empezarCarta()">
+                <div class="bg-white rounded-3xl p-8 shadow-2xl border-4 border-blue-300 hover:scale-110 transition">
+                    <svg width="100" height="70" viewBox="0 0 100 70">
+                        <rect x="5" y="15" width="90" height="50" rx="8" fill="#fef3c7"/>
+                        <polygon points="5,15 50,45 95,15" fill="#fde68a"/>
+                        <circle cx="50" cy="35" r="8" fill="#ec4899" opacity="0.6"/>
+                    </svg>
+                    <p class="text-slate-700 font-bold mt-3 text-lg">¡Toca para abrir!</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- PANTALLA 2: Carta con 2 páginas -->
-    <div id="pantalla2" class="hidden relative z-10 min-h-screen p-4">
-        <div class="max-w-4xl mx-auto">
-            <!-- Navegación páginas -->
-            <div class="flex justify-center gap-4 mb-4">
-                <button onclick="mostrarPagina(1)" id="btnPag1" class="px-6 py-2 bg-white rounded-full font-bold shadow-lg">Página 1</button>
-                <button onclick="mostrarPagina(2)" id="btnPag2" class="px-6 py-2 bg-white/50 rounded-full font-bold">Página 2</button>
+    <!-- PANTALLA 1: CREAR CARTA -->
+    <div id="pantallaCrear" class="hidden relative z-10 min-h-screen p-4 pb-40">
+        <div class="max-w-2xl mx-auto">
+            <div class="glass-card rounded-3xl p-4 mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                        <circle cx="20" cy="20" r="18" fill="#1e3a8a"/>
+                        <ellipse cx="20" cy="22" rx="12" ry="14" fill="white"/>
+                        <circle cx="16" cy="16" r="2" fill="#1e3a8a"/>
+                        <circle cx="24" cy="16" r="2" fill="#1e3a8a"/>
+                        <polygon points="20,19 18,21 22,21" fill="#f97316"/>
+                    </svg>
+                    <h1 class="text-2xl font-bold text-slate-800">Pingüi-Carta Virtual</h1>
+                </div>
             </div>
 
-            <!-- PÁGINA 1: Mensaje + Canción -->
-            <div id="pagina1" class="carta-pagina rounded-3xl p-8">
-                <h2 class="text-2xl font-bold mb-4 text-slate-800">Para: <span id="nombreDestino"></span> 💙</h2>
-                <textarea id="mensaje" placeholder="Escribe tu mensaje aquí..." class="w-full h-64 p-4 border-2 border-slate-200 rounded-xl mb-4 text-lg" ></textarea>
-                <div class="mb-4">
-                    <label class="font-bold text-slate-700 mb-2 block">🎵 Agrega una canción:</label>
-                    <input id="linkCancion" placeholder="Pega link de Spotify o YouTube" class="w-full p-3 border-2 border-slate-200 rounded-xl">
+            <div class="glass-card rounded-3xl p-6">
+                <div class="text-center mb-4">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <svg width="35" height="35" viewBox="0 0 35 35">
+                            <ellipse cx="17.5" cy="20" rx="12" ry="14" fill="#1e3a8a"/>
+                            <ellipse cx="17.5" cy="22" rx="8" ry="10" fill="white"/>
+                            <circle cx="14" cy="16" r="2" fill="white"/>
+                            <circle cx="21" cy="16" r="2" fill="white"/>
+                        </svg>
+                        <h2 class="text-3xl font-bold text-slate-800">Crea tu Pingüi-Carta 🌊</h2>
+                    </div>
+                </div>
+
+                <input id="deNombre" placeholder="De: Tu nombre" class="w-full p-4 mb-3 rounded-2xl border-2 border-blue-100 bg-white/70 text-lg">
+                <input id="paraNombre" placeholder="Para: Tu persona especial" class="w-full p-4 mb-3 rounded-2xl border-2 border-blue-100 bg-white/70 text-lg">
+                <textarea id="mensaje" placeholder="Escribe tu mensaje especial aquí... ✉️" class="w-full p-4 mb-3 rounded-2xl border-2 border-blue-100 bg-white/70 text-lg" rows="3"></textarea>
+
+                <div class="relative mb-3">
+                    <span class="absolute left-4 top-4 text-2xl">🎵</span>
+                    <input id="cancion" placeholder="Pega aquí el enlace de tu canción (Spotify, YouTube...) 🎵" class="w-full p-4 pl-14 rounded-2xl border-2 border-blue-100 bg-white/70">
                     <div id="playerCancion" class="mt-3"></div>
                 </div>
-                <p class="text-right text-slate-600 mt-6">Con cariño, <span id="nombreRemitente"></span> 🐧</p>
-            </div>
 
-            <!-- PÁGINA 2: Cupones + Mapa + Dibujo -->
-            <div id="pagina2" class="hidden carta-pagina rounded-3xl p-8">
-                <h3 class="text-xl font-bold mb-4">🎟️ Cupones para ti</h3>
-                <div class="grid md:grid-cols-2 gap-4 mb-6">
-                    <div class="bg-pink-100 p-4 rounded-xl border-2 border-dashed border-pink-300">
-                        <input placeholder="Cupón #1: Ej. Una cena" class="w-full p-2 rounded mb-2">
-                        <textarea placeholder="Descripción" class="w-full p-2 rounded text-sm" rows="2"></textarea>
+                <div class="mb-3">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-2xl">🖌️</span>
+                        <h3 class="font-bold text-slate-700 text-lg">Dibuja tu Pingüi-arte:</h3>
                     </div>
-                    <div class="bg-blue-100 p-4 rounded-xl border-2 border-dashed border-blue-300">
-                        <input placeholder="Cupón #2: Ej. Película juntos" class="w-full p-2 rounded mb-2">
-                        <textarea placeholder="Descripción" class="w-full p-2 rounded text-sm" rows="2"></textarea>
+                    <canvas id="canvas" width="600" height="250" class="w-full"></canvas>
+                    <div class="flex gap-3 mt-3">
+                        <button onclick="cambiarColor('#3b82f6')" class="w-14 h-14 rounded-2xl bg-blue-500 border-4 border-white shadow-lg hover:scale-110 transition"></button>
+                        <button onclick="cambiarColor('#ec4899')" class="w-14 h-14 rounded-2xl bg-pink-500 border-4 border-white shadow-lg hover:scale-110 transition"></button>
+                        <button onclick="cambiarColor('#1e293b')" class="w-14 h-14 rounded-2xl bg-slate-800 border-4 border-white shadow-lg hover:scale-110 transition"></button>
+                        <button onclick="limpiarCanvas()" class="w-14 h-14 rounded-2xl bg-white border-4 border-slate-200 shadow-lg flex items-center justify-center text-2xl hover:scale-110 transition">🗑️</button>
                     </div>
                 </div>
 
-                <h3 class="text-xl font-bold mb-4">📍 Nuestra distancia</h3>
-                <div id="mapa" class="h-48 rounded-xl mb-4 bg-slate-200"></div>
-                <p class="text-center mb-6 font-bold text-purple-600" id="distanciaTexto">Haz click en 2 puntos del mapa</p>
+                <button onclick="abrirCartaCompleta()" class="w-full bg-gradient-to-r from-blue-400 to-blue-600 text-white p-5 rounded-2xl font-bold text-xl shadow-xl hover:scale-105 transition flex items-center justify-center gap-3">
+                    <span class="text-2xl">✨</span> Generar Link para Compartir <span class="text-2xl">✨</span>
+                </button>
+            </div>
 
-                <h3 class="text-xl font-bold mb-4">🎨 Dibuja algo para mí</h3>
-                <canvas id="canvas" width="700" height="300" class="w-full bg-white"></canvas>
-                <button onclick="limpiarCanvas()" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg">Limpiar dibujo</button>
+            <div class="flex justify-around mt-6">
+                <svg width="140" height="140" viewBox="0 0 140 140" class="drop-shadow-2xl pinguino-bounce">
+                    <ellipse cx="70" cy="90" rx="35" ry="45" fill="#3b82f6"/>
+                    <ellipse cx="70" cy="95" rx="24" ry="34" fill="white"/>
+                    <ellipse cx="60" cy="70" rx="6" ry="8" fill="white"/>
+                    <ellipse cx="80" cy="70" rx="6" ry="8" fill="white"/>
+                    <circle cx="60" cy="72" r="3" fill="#1e3a8a"/>
+                    <circle cx="80" cy="72" r="3" fill="#1e3a8a"/>
+                    <polygon points="70,80 65,86 75,86" fill="#f97316"/>
+                    <ellipse cx="55" cy="90" rx="7" ry="14" fill="#3b82f6" transform="rotate(-20 55 90)"/>
+                    <ellipse cx="85" cy="90" rx="7" ry="14" fill="#3b82f6" transform="rotate(20 85 90)"/>
+                    <path d="M 50 100 Q 70 105 90 100 L 90 108 Q 70 113 50 108 Z" fill="#7dd3fc"/>
+                    <rect x="87" y="100" width="10" height="30" rx="5" fill="#7dd3fc"/>
+                    <ellipse cx="60" cy="135" rx="10" ry="6" fill="#f97316"/>
+                    <ellipse cx="80" cy="135" rx="10" ry="6" fill="#f97316"/>
+                </svg>
+
+                <svg width="140" height="140" viewBox="0 0 140 140" class="drop-shadow-2xl pinguino-bounce" style="animation-delay: -1s;">
+                    <ellipse cx="70" cy="90" rx="35" ry="45" fill="#60a5fa"/>
+                    <ellipse cx="70" cy="95" rx="24" ry="34" fill="white"/>
+                    <ellipse cx="60" cy="70" rx="6" ry="8" fill="white"/>
+                    <ellipse cx="80" cy="70" rx="6" ry="8" fill="white"/>
+                    <circle cx="60" cy="72" r="3" fill="#1e3a8a"/>
+                    <circle cx="80" cy="72" r="3" fill="#1e3a8a"/>
+                    <polygon points="70,80 65,86 75,86" fill="#f97316"/>
+                    <ellipse cx="55" cy="90" rx="7" ry="14" fill="#60a5fa" transform="rotate(-20 55 90)"/>
+                    <ellipse cx="85" cy="90" rx="7" ry="14" fill="#60a5fa" transform="rotate(20 85 90)"/>
+                    <path d="M 50 100 Q 70 105 90 100 L 90 108 Q 70 113 50 108 Z" fill="#f9a8d4"/>
+                    <rect x="87" y="100" width="10" height="30" rx="5" fill="#f9a8d4"/>
+                    <ellipse cx="60" cy="135" rx="10" ry="6" fill="#f97316"/>
+                    <ellipse cx="80" cy="135" rx="10" ry="6" fill="#f97316"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA 2: CARTA COMPLETA 2 PÁGINAS -->
+    <div id="pantallaCarta" class="hidden relative z-10 min-h-screen p-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex justify-center gap-4 mb-4">
+                <button onclick="mostrarPagina(1)" id="btnPag1" class="px-8 py-3 bg-white rounded-full font-bold shadow-lg">📝 Página 1</button>
+                <button onclick="mostrarPagina(2)" id="btnPag2" class="px-8 py-3 bg-white/60 rounded-full font-bold shadow-lg">🎟️ Página 2</button>
+            </div>
+
+            <div id="pagina1" class="carta-pagina rounded-3xl p-8">
+                <h2 class="text-3xl font-bold mb-4 text-slate-800">Para: <span id="nombreDestino"></span> 💙</h2>
+                <div class="bg-blue-50 p-6 rounded-2xl mb-4 border-2 border-blue-200">
+                    <p id="mensajeFinal" class="text-lg text-slate-700"></p>
+                </div>
+                <div id="cancionFinal" class="mb-4"></div>
+                <h3 class="text-xl font-bold mb-3 text-slate-700">📍 Nuestra distancia</h3>
+                <div id="mapa" class="h-64 rounded-2xl mb-2 bg-slate-200"></div>
+                <p class="text-center mb-4 font-bold text-purple-600" id="distanciaTexto">Haz click en 2 puntos del mapa</p>
+                <p class="text-right text-slate-600 mt-6 text-lg">Con cariño, <span id="nombreRemitente" class="font-bold"></span> 🐧</p>
+            </div>
+
+            <div id="pagina2" class="hidden carta-pagina rounded-3xl p-8">
+                <h3 class="text-2xl font-bold mb-4 text-slate-800">🎟️ Cupones para ti</h3>
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-pink-100 p-5 rounded-2xl border-3 border-dashed border-pink-400">
+                        <input id="cupon1titulo" placeholder="Cupón #1: Una cena romántica" class="w-full p-3 rounded-xl mb-2 font-bold">
+                        <textarea id="cupon1desc" placeholder="Descripción del cupón..." class="w-full p-3 rounded-xl text-sm" rows="3"></textarea>
+                    </div>
+                    <div class="bg-blue-100 p-5 rounded-2xl border-3 border-dashed border-blue-400">
+                        <input id="cupon2titulo" placeholder="Cupón #2: Maratón de películas" class="w-full p-3 rounded-xl mb-2 font-bold">
+                        <textarea id="cupon2desc" placeholder="Descripción del cupón..." class="w-full p-3 rounded-xl text-sm" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-bold mb-4 text-slate-800">🎨 Tu Pingüi-arte</h3>
+                <div id="dibujoFinal" class="bg-white p-4 rounded-2xl border-4 border-dashed border-slate-300"></div>
             </div>
 
             <div class="flex justify-center gap-4 mt-6">
-                <button onclick="cerrarCarta()" class="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-bold text-lg hover:scale-105 transition">
+                <button onclick="cerrarCarta()" class="px-10 py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-2xl font-bold text-xl hover:scale-105 transition shadow-xl">
                     Cerrar Carta 💌
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- PANTALLA 3: Final con fogata -->
-    <div id="pantalla3" class="hidden relative z-10 min-h-screen flex items-center justify-center p-4">
-        <div class="text-center">
-            <h2 class="text-4xl font-bold text-white mb-8">¡Carta entregada! 💙</h2>
-            <!-- Escena fogata con pingüinos -->
-            <svg viewBox="0 0 400 300" class="w-full max-w-2xl mx-auto mb-8">
-                <!-- Pinos -->
-                <polygon points="50,200 70,100 90,200" fill="#065f46"/>
-                <polygon points="320,200 340,80 360,200" fill="#065f46"/>
-                <polygon points="100,220 120,120 140,220" fill="#047857"/>
-                <!-- Fogata -->
-                <ellipse cx="200" cy="230" rx="40" ry="10" fill="#451a03" opacity="0.5"/>
+    <!-- PANTALLA 3: FINAL CON FOGATA + ESTRELLAS -->
+    <div id="pantallaFinal" class="hidden relative z-10 min-h-screen p-4" style="background: linear-gradient(to bottom, #0f172a, #1e1b4b, #312e81);">
+        <div class="max-w-5xl mx-auto text-center">
+            <h2 class="text-5xl font-bold text-white mb-2 drop-shadow-lg">¡Carta entregada! 💙</h2>
+            <p class="text-white/90 mb-8 text-xl">Pica 2 estrellas para dejar tus retos secretos ✨</p>
+
+            <div id="cielo" class="relative h-96 mb-8 rounded-3xl overflow-hidden" style="background: radial-gradient(ellipse at top, #1e1b4b, #0f172a);">
+                <div class="aurora" style="opacity: 0.3;"></div>
+            </div>
+
+            <div id="retos" class="grid md:grid-cols-2 gap-6 mb-8"></div>
+
+            <svg viewBox="0 0 500 350" class="w-full max-w-3xl mx-auto mb-8">
+                <g>
+                    <polygon points="40,250 60,120 80,250" fill="#064e3b"/>
+                    <polygon points="420,250 440,100 460,250" fill="#064e3b"/>
+                    <polygon points="100,260 120,140 140,260" fill="#047857"/>
+                    <polygon points="360,260 380,130 400,260" fill="#047857"/>
+                    <polygon points="150,270 165,180 180,270" fill="#059669"/>
+                    <polygon points="320,270 335,170 350,270" fill="#059669"/>
+                </g>
+                <ellipse cx="250" cy="290" rx="50" ry="12" fill="#451a03" opacity="0.6"/>
                 <g class="fogata">
-                    <polygon points="200,230 190,200 210,200" fill="#f97316"/>
-                    <polygon points="200,220 185,195 215,195" fill="#fbbf24"/>
-                    <polygon points="200,215 192,190 208,190" fill="#fef08a"/>
+                    <polygon points="250,290 235,250 265,250" fill="#dc2626"/>
+                    <polygon points="250,280 230,245 270,245" fill="#f97316"/>
+                    <polygon points="250,275 240,240 260,240" fill="#fbbf24"/>
+                    <polygon points="250,270 245,235 255,235" fill="#fef08a"/>
                 </g>
-                <!-- Pingüino con guitarra -->
-                <g transform="translate(150, 180)">
-                    <ellipse cx="0" cy="20" rx="18" ry="28" fill="#1e293b"/>
-                    <ellipse cx="0" cy="25" rx="12" ry="20" fill="white"/>
-                    <circle cx="-5" cy="5" r="4" fill="white"/>
-                    <circle cx="5" cy="5" r="4" fill="white"/>
-                    <circle cx="-5" cy="5" r="1.5" fill="#1e293b"/>
-                    <circle cx="5" cy="5" r="1.5" fill="#1e293b"/>
-                    <polygon points="0,10 -3,14 3,14" fill="#f97316"/>
-                    <rect x="10" y="15" width="8" height="25" rx="4" fill="#92400e"/>
-                    <circle cx="14" cy="12" r="6" fill="#a16207"/>
+                <rect x="220" y="285" width="60" height="8" rx="4" fill="#78350f" transform="rotate(-15 250 289)"/>
+                <rect x="220" y="285" width="60" height="8" rx="4" fill="#78350f" transform="rotate(15 250 289)"/>
+
+                <g transform="translate(180, 230)">
+                    <ellipse cx="0" cy="25" rx="22" ry="32" fill="#1e3a8a"/>
+                    <ellipse cx="0" cy="30" rx="15" ry="24" fill="white"/>
+                    <circle cx="-6" cy="8" r="5" fill="white"/>
+                    <circle cx="6" cy="8" r="5" fill="white"/>
+                    <circle cx="-6" cy="9" r="2" fill="#1e3a8a"/>
+                    <circle cx="6" cy="9" r="2" fill="#1e3a8a"/>
+                    <polygon points="0,14 -3,19 3,19" fill="#f97316"/>
+                    <path d="M -15 25 Q 0 30 15 25 L 15 33 Q 0 38 -15 33 Z" fill="#7dd3fc"/>
+                    <ellipse cx="20" cy="28" rx="12" ry="18" fill="#92400e"/>
+                    <rect x="16" y="10" width="8" height="20" rx="2" fill="#92400e"/>
+                    <circle cx="20" cy="25" r="6" fill="#451a03"/>
                 </g>
-                <!-- Pingüino con pescado -->
-                <g transform="translate(250, 180)">
-                    <ellipse cx="0" cy="20" rx="18" ry="28" fill="#1e293b"/>
-                    <ellipse cx="0" cy="25" rx="12" ry="20" fill="white"/>
-                    <circle cx="-5" cy="5" r="4" fill="white"/>
-                    <circle cx="5" cy="5" r="4" fill="white"/>
-                    <circle cx="-5" cy="5" r="1.5" fill="#1e293b"/>
-                    <circle cx="5" cy="5" r="1.5" fill="#1e293b"/>
-                    <polygon points="0,10 -3,14 3,14" fill="#f97316"/>
-                    <g transform="translate(15, 25) rotate(-30)">
-                        <ellipse cx="0" cy="0" rx="12" ry="6" fill="#94a3b8"/>
-                        <polygon points="12,0 18,-4 18,4" fill="#94a3b8"/>
-                        <circle cx="-6" cy="0" r="1" fill="#1e293b"/>
+
+                <g transform="translate(320, 230)">
+                    <ellipse cx="0" cy="25" rx="22" ry="32" fill="#1e3a8a"/>
+                    <ellipse cx="0" cy="30" rx="15" ry="24" fill="white"/>
+                    <circle cx="-6" cy="8" r="5" fill="white"/>
+                    <circle cx="6" cy="8" r="5" fill="white"/>
+                    <circle cx="-6" cy="9" r="2" fill="#1e3a8a"/>
+                    <circle cx="6" cy="9" r="2" fill="#1e3a8a"/>
+                    <polygon points="0,14 -3,19 3,19" fill="#f97316"/>
+                    <path d="M -15 25 Q 0 30 15 25 L 15 33 Q 0 38 -15 33 Z" fill="#f9a8d4"/>
+                    <g transform="translate(25, 30) rotate(-20)">
+                        <ellipse cx="0" cy="0" rx="15" ry="8" fill="#94a3b8"/>
+                        <polygon points="15,0 25,-6 25,6" fill="#94a3b8"/>
+                        <circle cx="-8" cy="0" r="1.5" fill="#1e3a8a"/>
+                        <path d="M -12 0 Q -10 -3 -8 0 Q -10 3 -12 0" fill="#64748b"/>
                     </g>
                 </g>
             </svg>
-            <div class="flex justify-center gap-4">
-                <button onclick="compartirLink()" class="px-8 py-4 bg-blue-500 text-white rounded-xl font-bold text-lg hover:scale-105 transition">
+
+            <div class="flex justify-center gap-6">
+                <button onclick="compartirCarta()" class="px-10 py-5 bg-blue-500 text-white rounded-2xl font-bold text-xl hover:scale-105 transition shadow-2xl">
                     🔗 Compartir Link
                 </button>
-                <button onclick="location.reload()" class="px-8 py-4 bg-purple-500 text-white rounded-xl font-bold text-lg hover:scale-105 transition">
+                <button onclick="location.reload()" class="px-10 py-5 bg-purple-500 text-white rounded-2xl font-bold text-xl hover:scale-105 transition shadow-2xl">
                     ✨ Crear Nueva Carta
                 </button>
             </div>
@@ -222,123 +407,119 @@
     </div>
 
     <script>
+        let ctx;
+        let dibujando = false;
+        let colorActual = '#3b82f6';
         let paginaActual = 1;
         let puntosMapa = [];
         let mapa;
-        let dibujando = false;
-        let ctx;
+        let estrellasSeleccionadas = [];
+        let retosGuardados = {};
+        let canvasDibujo;
+        let datosCarta = {};
 
-        function abrirCarta() {
-            const de = document.getElementById('deNombre').value || 'Alguien especial';
-            const para = document.getElementById('paraNombre').value || 'Tú';
-            document.getElementById('nombreRemitente').textContent = de;
-            document.getElementById('nombreDestino').textContent = para;
-            
-            // Confeti premium
+        // Detectar si hay datos de carta en la URL
+        window.addEventListener('load', () => {
+            const hash = window.location.hash;
+            if (hash.startsWith('#carta=')) {
+                try {
+                    const data = JSON.parse(atob(hash.replace('#carta=', '')));
+                    mostrarCartaRecibida(data);
+                } catch(e) {
+                    console.log('Error al cargar carta');
+                }
+            }
+        });
+
+        function empezarCarta() {
             confetti({
                 particleCount: 150,
                 spread: 100,
                 origin: { y: 0.6 },
-                colors: ['#ec4899', '#8b5cf6', '#3b82f6', '#22d3ee', '#fbbf24']
+                colors: ['#3b82f6', '#ec4899', '#8b5cf6', '#22d3ee', '#fbbf24']
             });
-            
-            document.getElementById('pantalla1').classList.add('hidden');
-            document.getElementById('pantalla2').classList.remove('hidden');
-            initMapa();
+            document.getElementById('intro').classList.add('hidden');
+            document.getElementById('pantallaCrear').classList.remove('hidden');
             initCanvas();
-        }
-
-        function mostrarPagina(num) {
-            document.getElementById('pagina1').classList.toggle('hidden', num!== 1);
-            document.getElementById('pagina2').classList.toggle('hidden', num!== 2);
-            document.getElementById('btnPag1').classList.toggle('bg-white/50', num!== 1);
-            document.getElementById('btnPag1').classList.toggle('bg-white', num === 1);
-            document.getElementById('btnPag2').classList.toggle('bg-white/50', num!== 2);
-            document.getElementById('btnPag2').classList.toggle('bg-white', num === 2);
-        }
-
-        function initMapa() {
-            mapa = L.map('mapa').setView([19.4326, -99.1332], 5);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
-            
-            mapa.on('click', function(e) {
-                if (puntosMapa.length < 2) {
-                    puntosMapa.push(e.latlng);
-                    L.marker(e.latlng).addTo(mapa);
-                    
-                    if (puntosMapa.length === 2) {
-                        const distancia = mapa.distance(puntosMapa[0], puntosMapa[1]) / 1000;
-                        document.getElementById('distanciaTexto').textContent = `💕 Nos separan ${distancia.toFixed(1)} km pero estamos conectados 💕`;
-                        L.polyline(puntosMapa, {color: '#ec4899', weight: 3}).addTo(mapa);
-                    }
-                }
-            });
         }
 
         function initCanvas() {
             const canvas = document.getElementById('canvas');
             ctx = canvas.getContext('2d');
-            ctx.strokeStyle = '#1e293b';
-            ctx.lineWidth = 3;
+            ctx.strokeStyle = colorActual;
+            ctx.lineWidth = 4;
             ctx.lineCap = 'round';
 
-            canvas.addEventListener('mousedown', () => dibujando = true);
-            canvas.addEventListener('mouseup', () => { dibujando = false; ctx.beginPath(); });
-            canvas.addEventListener('mousemove', dibujar);
-            
-            // Touch para móvil
-            canvas.addEventListener('touchstart', (e) => { dibujando = true; });
-            canvas.addEventListener('touchend', () => { dibujando = false; ctx.beginPath(); });
-            canvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                const touch = e.touches[0];
+            const startDrawing = (e) => {
+                dibujando = true;
                 const rect = canvas.getBoundingClientRect();
-                dibujar({ offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top });
-            });
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            };
+
+            const draw = (e) => {
+                if (!dibujando) return;
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            };
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', () => dibujando = false);
+            canvas.addEventListener('touchstart', startDrawing);
+            canvas.addEventListener('touchmove', draw);
+            canvas.addEventListener('touchend', () => dibujando = false);
         }
 
-        function dibujar(e) {
-            if (!dibujando) return;
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(e.offsetX, e.offsetY);
+        function cambiarColor(color) {
+            colorActual = color;
+            ctx.strokeStyle = color;
         }
 
         function limpiarCanvas() {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         }
 
-        function cerrarCarta() {
-            document.getElementById('pantalla2').classList.add('hidden');
-            document.getElementById('pantalla3').classList.remove('hidden');
-            
-            // Confeti final
-            setTimeout(() => {
-                confetti({ particleCount: 200, spread: 160, origin: { y: 0.6 } });
-            }, 300);
-        }
+        function abrirCartaCompleta() {
+            const de = document.getElementById('deNombre').value || 'Alguien especial';
+            const para = document.getElementById('paraNombre').value || 'Tú';
+            const mensaje = document.getElementById('mensaje').value;
 
-        function compartirLink() {
-            const link = window.location.href;
-            navigator.clipboard.writeText(link);
-            alert('¡Link copiado! 💙 Compártelo con tu persona especial');
-        }
-
-        // Cargar canción de YouTube/Spotify
-        document.getElementById('linkCancion').addEventListener('change', function(e) {
-            const url = e.target.value;
-            const player = document.getElementById('playerCancion');
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                const videoId = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
-                player.innerHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen class="rounded-xl"></iframe>`;
-            } else if (url.includes('spotify.com')) {
-                const trackId = url.split('track/')[1]?.split('?')[0];
-                player.innerHTML = `<iframe src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="200" frameborder="0" class="rounded-xl"></iframe>`;
+            if (!mensaje) {
+                alert('¡Escribe un mensaje primero! 💙');
+                return;
             }
-        });
-    </script>
-</body>
-</html>
 
+            // Guardar datos
+            datosCarta = {
+                de: de,
+                para: para,
+                mensaje: mensaje,
+                cancion: document.getElementById('cancion').value,
+                dibujo: document.getElementById('canvas').toDataURL(),
+                cupon1t: '',
+                cupon1d: '',
+                cupon2t: '',
+                cupon2d: '',
+                mapaPuntos: [],
+                retos: {}
+            };
+
+            document.getElementById('nombreRemitente').textContent = de;
+            document.getElementById('nombreDestino').textContent = para;
+            document.getElementById('mensajeFinal').textContent = mensaje;
+
+            // Cargar canción
+            const cancionUrl = datosCarta.cancion;
+            const player = document.getElementById('cancionFinal');
+            if (cancionUrl.includes('youtube.com') || cancionUrl.includes('youtu.be')) {
+                const videoId = cancionUrl.split('v=')[1]?.split('&')[0] || cancionUrl.split('/').pop();
+                player.innerHTML = `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen class="rounded-2xl"></iframe>`;
+            } else if (cancionUrl.includes('spotify.com'))
     
